@@ -12,6 +12,7 @@
 
 <script>
 import CustomButton from '../../components/customButton'
+import { mapGetters, mapActions } from "vuex";
 export default {
   name: "Auth",
   components:{
@@ -23,8 +24,21 @@ export default {
       password: ''
     }
   },
+  created() {
+    if (this.getAuth) {
+      this.logout();
+    }
+  },
+  computed: {
+    ...mapGetters(['getAuth'])
+  },
   methods: {
+    ...mapActions(['fetchAuth', 'logout']),
     auth() {
+      if (!this.getAuth) {
+        this.fetchAuth();
+        this.$router.push({name: 'home'})
+      }
       console.log('auth', this.login, this.password);
     }
   }

@@ -15,18 +15,28 @@
     <li class="navbarItem" @click="clickHandler('miro')">
       <h3 class="navbarItemText">Совместная доска</h3>
     </li>
-    <li class="navbarItem" @click="clickHandler('myReview')">
+    <li v-if="editableMode" class="navbarItem" @click="clickHandler('myReview')">
       <h3 class="navbarItemText">Проверка работ</h3>
     </li>
+    <li v-if="editableMode" class="navbarItem" @click="clickHandler('newTask')">
+      <h3 class="navbarItemText">Новое задание</h3>
+    </li>
     <li class="navbarLastItem" @click="clickHandler('auth')">
-      <h3 class="navbarItemText">Авторизация</h3>
+      <h3 class="navbarItemText">{{authRouteName}}</h3>
     </li>
   </ul>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "navbar",
+  computed: {
+    ...mapGetters(['getAuth', 'editableMode']),
+    authRouteName() {
+      return this.getAuth ? 'Выход' : 'Авторизация'
+    },
+  },
   methods: {
     clickHandler(route) {
       this.$router.push(route);

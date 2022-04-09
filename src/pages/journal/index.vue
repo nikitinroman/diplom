@@ -97,12 +97,16 @@
 import defaultUserIcon from "@/assets/default_user_icon.png";
 import Modal from "../../components/modal";
 import Button from "../../components/customButton";
+import {mapGetters} from "vuex";
 
 export default {
   name: "index",
   components: {
     Modal,
     Button,
+  },
+  computed: {
+    ...mapGetters(['editableMode'])
   },
   data() {
     return {
@@ -112,7 +116,6 @@ export default {
       inputMark: 5,
       chosenItem: {},
       defaultUserIcon: defaultUserIcon,
-      editableMode: false,
       table: [
           [
             {
