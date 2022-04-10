@@ -1,9 +1,9 @@
 <template>
   <ul class="navbar">
-    <li class="navbarItem" @click="clickHandler('home')">
-      <h3 class="navbarItemText">Домашняя страница</h3>
+    <li v-if="!editableMode && getAuth" class="navbarItem" @click="clickHandler('home')">
+      <h3 class="navbarItemText">Моя группа</h3>
     </li>
-    <li class="navbarItem" @click="clickHandler('board')">
+    <li v-if="!editableMode && getAuth" class="navbarItem" @click="clickHandler('board')">
       <h3 class="navbarItemText">Доска</h3>
     </li>
     <li class="navbarItem" @click="clickHandler('journal')">

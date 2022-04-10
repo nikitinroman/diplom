@@ -93,6 +93,21 @@
           <span class="taskSeparator">---</span>
           <p class="taskDate">{{ chosenTask.endDate }}</p>
         </div>
+        <div v-if="chosenTask.canLoadFile">
+          <h3>Прикрепить файлы к заданию</h3>
+          <input class="loadFile" type="file" @change="loadFile" multiple>
+        </div>
+        <div
+            v-if="chosenTask.files">
+          <DownloadFile
+              v-for="(file, index) in chosenTask.files"
+              :key="index + file.name"
+              class="downloadFile"
+              :filename="file.name"
+              :href="file.href"/>
+          <!--        https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc-->
+        </div>
+
         <div v-if="chosenTask.options" class="buttonsContainer">
           <Button
             @click="setTaskStatus(chosenTask.id, option)"
@@ -112,6 +127,8 @@ import Task from "../../components/task";
 import Modal from "../../components/modal";
 import Button from "../../components/customButton";
 import defaultUserIcon from "@/assets/default_user_icon.png";
+import DownloadFile from '../../components/downloadFile'
+import {changeTaskStatus} from "@/constants.ts";
 
 export default {
   name: "Board",
@@ -120,6 +137,7 @@ export default {
     Task,
     Modal,
     Button,
+    DownloadFile
   },
 
   data() {
@@ -127,6 +145,7 @@ export default {
       chosenTask: {},
       defaultUserIcon,
       taskModalOpened: false,
+      loadedFiles: [],
       taskList: [
         {
           title: "Задание",
@@ -347,19 +366,24 @@ export default {
     ...mapActions(["fetchTasks"]),
     choseTask(index) {
       this.chosenTask = this.taskList[index];
+      this.loadedFile = [];
       this.toggleModal();
     },
     toggleModal() {
       this.taskModalOpened = !this.taskModalOpened;
     },
     setTaskStatus(id, status) {
-      console.log(
-        "дернуть ручку и передать айди и выбранный статус",
-        id,
-        status
-      );
+      const postData = {id: id, status: status, loadedFiles: this.loadedFiles}
+
+      fetch(changeTaskStatus, {
+        method: 'POST',
+        body: postData
+      })
       this.toggleModal();
     },
+    loadFile(event) {
+      this.loadedFiles = event.target.files
+    }
   },
 };
 </script>
@@ -429,5 +453,11 @@ export default {
 .personContactsText {
   display: inline-block;
   margin: 20px 0 0 0;
+}
+
+.loadFile,
+.downloadFile {
+  display: inline-block;
+  margin: 16px 0;
 }
 </style>

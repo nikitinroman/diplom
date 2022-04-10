@@ -1,5 +1,23 @@
 <template>
   <div class="table">
+    <div class="heading">
+      <div class="container">
+        <div>
+          <p class="selectorTitle">Группа</p>
+          <p class="selectorTitle">Предмет</p>
+        </div>
+        <div class="selectorsContainer">
+          <Selector @change="changeGroup" :options="otherGroups" />
+          <Selector @change="changeSubject" :options="otherSubjects" />
+        </div>
+      </div>
+      <Button
+          class="button"
+          @click="onChoose"
+          text="Выбрать"
+          :disabled="disabledButton"
+      />
+    </div>
     <div class="row" v-for="(row, index) in table" :key="index">
       <div
           :class="['cell', { firstCell: item.firstCell, pointer: item.data }]"
@@ -12,25 +30,25 @@
     </div>
     <Modal @close="toggleModal" v-if="modalIsOpened">
       <div class="modalContent">
-        <h2 v-if="chosenItem.status" class="taskStatus">
-          {{ chosenItem.status }}
+        <h2 v-if="chosenTask.status" class="taskStatus">
+          {{ chosenTask.status }}
         </h2>
-        <p v-if="chosenItem.title" class="taskTitle">{{ chosenItem.title }}</p>
-        <p v-if="chosenItem.subtitle" class="taskSubtitle">
-          {{ chosenItem.subtitle }}
+        <p v-if="chosenTask.title" class="taskTitle">{{ chosenTask.title }}</p>
+        <p v-if="chosenTask.subtitle" class="taskSubtitle">
+          {{ chosenTask.subtitle }}
         </p>
-        <p v-if="chosenItem.description" class="taskDescription">
-          {{ chosenItem.description }}
+        <p v-if="chosenTask.description" class="taskDescription">
+          {{ chosenTask.description }}
         </p>
-        <div v-if="chosenItem.person">
-          <div v-if="chosenItem.person.image" class="studentAvatarContainer">
+        <div v-if="chosenTask.person">
+          <div v-if="chosenTask.person.image" class="studentAvatarContainer">
             <img
                 class="studentAvatar"
-                :src="chosenItem.person.image || defaultUserIcon"
+                :src="chosenTask.person.image || defaultUserIcon"
                 alt="student_image"
             />
           </div>
-          <p>{{ chosenItem.person.position }}</p>
+          <p>{{ chosenTask.person.position }}</p>
           <div class="personContacts">
             <div class="personContactsContent">
               <p class="personContactsText">Почта</p>
@@ -39,35 +57,55 @@
             <div class="personContactsContent">
               <a
                   class="personContactsText"
-                  :href="`mailto:${chosenItem.person.email}`"
-              >{{ chosenItem.person.email }}
+                  :href="`mailto:${chosenTask.person.email}`"
+              >{{ chosenTask.person.email }}
               </a>
               <a
                   class="personContactsText"
-                  :href="`tel:+${chosenItem.person.tel}`"
-              >Позвонить {{ chosenItem.person.tel }}
+                  :href="`tel:+${chosenTask.person.tel}`"
+              >Позвонить {{ chosenTask.person.tel }}
               </a>
             </div>
           </div>
         </div>
-        <div v-if="chosenItem.startDate || chosenItem.endDate" class="taskDate">
-          <p class="taskDate">{{ chosenItem.startDate }}</p>
+        <div v-if="chosenTask.startDate || chosenTask.endDate" class="taskDate">
+          <p class="taskDate">{{ chosenTask.startDate }}</p>
           <span class="taskSeparator">---</span>
-          <p class="taskDate">{{ chosenItem.endDate }}</p>
+          <p class="taskDate">{{ chosenTask.endDate }}</p>
         </div>
-        <div v-if="chosenItem.options" class="buttonsContainer">
-          <Button
-              @click="setTaskStatus(chosenItem.id, option)"
-              v-bind="option"
-              v-for="(option, index) in chosenItem.options"
-              :key="index + option.text"
-          />
+        <div
+            v-if="chosenTask.files">
+          <DownloadFile
+              v-for="(file, index) in chosenTask.files"
+              :key="index + file.name"
+              class="downloadFile"
+              :filename="file.name"
+              :href="file.href"/>
+          <!--        https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc-->
         </div>
+<!--        <div v-if="chosenTask.options" class="buttonsContainer">-->
+<!--          <Button-->
+<!--              @click="setTaskStatus(chosenTask.id, option)"-->
+<!--              v-bind="option"-->
+<!--              v-for="(option, index) in chosenTask.options"-->
+<!--              :key="index + option.text"-->
+<!--          />-->
+<!--        </div>-->
       </div>
     </Modal>
     <Modal @close="toggleEditModal" v-if="editableModalIsOpened">
       <div class="modalContent">
         <h1>Выставление оценки</h1>
+        <h2 v-if="chosenTask.status" class="taskStatus">
+          {{ chosenTask.status }}
+        </h2>
+        <p v-if="chosenTask.title" class="taskTitle">{{ chosenTask.title }}</p>
+        <p v-if="chosenTask.subtitle" class="taskSubtitle">
+          {{ chosenTask.subtitle }}
+        </p>
+        <p v-if="chosenTask.description" class="taskDescription">
+          {{ chosenTask.description }}
+        </p>
         <textarea rows="5" class="Textarea" v-model="inputMarkMessage" placeholder="Введите комментарий к оценке"/>
         <div class="SelectContainer">
           <p>Выберите оценку из списка</p>
@@ -83,9 +121,19 @@
             </optgroup>
           </select>
         </div>
+        <div
+            v-if="chosenTask.files">
+          <DownloadFile
+              v-for="(file, index) in chosenTask.files"
+              :key="index + file.name"
+              class="downloadFile"
+              :filename="file.name"
+              :href="file.href"/>
+          <!--        https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc-->
+        </div>
         <Button
             class="Button"
-            @click="setTaskMark(chosenItem.id)"
+            @click="setTaskMark(chosenTask.id)"
             :text="'Поставить оценку'"
         />
       </div>
@@ -97,6 +145,8 @@
 import defaultUserIcon from "@/assets/default_user_icon.png";
 import Modal from "../../components/modal";
 import Button from "../../components/customButton";
+import Selector from "../../components/selector";
+import DownloadFile from '../../components/downloadFile'
 import {mapGetters} from "vuex";
 
 export default {
@@ -104,9 +154,14 @@ export default {
   components: {
     Modal,
     Button,
+    DownloadFile,
+    Selector
   },
   computed: {
-    ...mapGetters(['editableMode'])
+    ...mapGetters(['editableMode']),
+    disabledButton() {
+      return !this.chosenSubject && !this.chosenGroup;
+    },
   },
   data() {
     return {
@@ -114,8 +169,12 @@ export default {
       editableModalIsOpened: false,
       inputMarkMessage: '',
       inputMark: 5,
-      chosenItem: {},
+      chosenTask: {},
+      chosenSubject: "",
+      chosenGroup: "",
       defaultUserIcon: defaultUserIcon,
+      otherSubjects: ["Матан", "Англ", "Русич"],
+      otherGroups: ["Пи18-2", "Пи18", "Пи18Пи18"],
       table: [
           [
             {
@@ -136,7 +195,10 @@ export default {
             },
             {
               text: "06.09.2000"
-            }
+            },
+            {
+              text: "Сумма баллов"
+            },
           ],
         [
           {
@@ -259,9 +321,9 @@ export default {
                   "сложное или не очень задание но все равно студент должен справиться инфа сотка",
             },
           },
+          {},
           {
-            text: "",
-            status: "",
+            text: "5",
           },
         ],
         [
@@ -417,11 +479,11 @@ export default {
   },
   methods: {
     openModal(item) {
-      this.chosenItem = item.data;
+      this.chosenTask = item.data;
       if (item.data && !this.editableMode) {
         this.toggleModal();
       }
-      if (this.editableMode && item.data && this.chosenItem.editable) {
+      if (this.editableMode && item.data && this.chosenTask.editable) {
         this.toggleEditModal();
       }
     },
@@ -452,7 +514,16 @@ export default {
       );
       this.toggleEditModal();
       this.clearFields();
-    }
+    },
+    changeSubject(val) {
+      this.chosenSubject = val;
+    },
+    changeGroup(val) {
+      this.chosenGroup = val;
+    },
+    onChoose() {
+      console.log(this.chosenSubject, this.chosenGroup);
+    },
   },
 };
 </script>
@@ -548,5 +619,33 @@ export default {
 
 .Select {
   margin-left: 16px;
+}
+
+.downloadFile {
+  display: inline-block;
+  margin: 16px 0;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.container {
+  display: flex;
+  margin-right: 24px;
+  align-items: center;
+}
+
+.selectorTitle {
+  font-size: 20px;
+  margin: 0 24px 0 0;
+}
+
+.selectorsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 </style>

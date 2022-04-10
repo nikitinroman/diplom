@@ -26,6 +26,7 @@ const routes = [
 ];
 
 const editableModeRoutesOnly = ["myReview", "newTask"];
+const studentModeRoutesOnly = ["board", "home"];
 
 const router = new VueRouter({
   mode: "history",
@@ -41,6 +42,11 @@ router.beforeEach((to, from, next) => {
       !store.getters.editableMode
     ) {
       next({ name: "board" });
+    } else if (
+      studentModeRoutesOnly.includes(to.name) &&
+      store.getters.editableMode
+    ) {
+      next({ name: "myReview" });
     } else {
       next();
     }
