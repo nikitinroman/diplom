@@ -3,7 +3,7 @@
     <form class="authForm" action="">
       <h1 class="authFormTitle">Войдите в личный кабинет</h1>
       <img class="authFormImage" src="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" alt="image">
-      <input v-model="login" class="authFormInput" type="text" placeholder="Логин">
+      <input v-model="email" class="authFormInput" type="text" placeholder="Логин">
       <input v-model="password" class="authFormInput" type="password" placeholder="Пароль">
       <CustomButton @click="auth" class="authFormButton" text="Войти"/>
     </form>
@@ -20,7 +20,7 @@ export default {
   },
   data() {
     return {
-      login: '',
+      email: '',
       password: ''
     }
   },
@@ -34,12 +34,10 @@ export default {
   },
   methods: {
     ...mapActions(['fetchAuth', 'logout']),
-    auth() {
+    async auth() {
       if (!this.getAuth) {
-        this.fetchAuth();
-        this.$router.push({name: 'home'})
+        await this.fetchAuth({ email: this.email, password: this.password });
       }
-      console.log('auth', this.login, this.password);
     }
   }
 }

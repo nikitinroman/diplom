@@ -10,7 +10,7 @@
         <p class="content">
           {{ faculty }}
         </p>
-        <p class="content">{{ trainingDir }}</p>
+        <p class="content">{{ direction }}</p>
       </div>
     </div>
     <h2 class="heading">Одногруппники</h2>
@@ -23,7 +23,7 @@
       >
         <img
           class="studentImage"
-          :src="student.image || defaultUserIcon"
+          :src="student.imageLink || defaultUserIcon"
           alt="student_image"
         />
         <p class="studentName">{{ student.name }}</p>
@@ -34,7 +34,7 @@
         <div class="studentAvatarContainer">
           <img
             class="studentAvatar"
-            :src="chosenStudent.image || defaultUserIcon"
+            :src="chosenStudent.imageLink || defaultUserIcon"
             alt="student_image"
           />
         </div>
@@ -50,8 +50,8 @@
               :href="`mailto:${chosenStudent.email}`"
               >{{ chosenStudent.email }}</a
             >
-            <a class="studentContactsText" :href="`tel:+${chosenStudent.tel}`"
-              >Позвонить {{ chosenStudent.tel }}</a
+            <a class="studentContactsText" :href="`tel:+${chosenStudent.phone}`"
+              >Позвонить {{ chosenStudent.phone }}</a
             >
           </div>
         </div>
@@ -68,12 +68,21 @@ import defaultUserIcon from "../../assets/default_user_icon.png";
 import Modal from "../../components/modal";
 import Button from "../../components/customButton";
 
+import {requestWrapper} from "@/requestHelpers/requestHelper.js";
+import { GROUP_INFO_URL}  from "@/requestHelpers/endpoints.ts"
+import {mapGetters} from "vuex";
+
 export default {
   name: "Home",
-
   components: {
     Modal,
     Button,
+  },
+  computed: {
+    ...mapGetters(['token', 'userId', 'groupId']),
+  },
+  mounted() {
+    this.fetchGroupData();
   },
   methods: {
     toggleModal() {
@@ -83,65 +92,23 @@ export default {
       this.chosenStudent = this.students[index];
       this.toggleModal();
     },
+    async fetchGroupData() {
+      const response = await requestWrapper({additionUrl: GROUP_INFO_URL, userID: this.userId, token: this.token, method: "GET", getParam: this.groupId});
+      this.faculty = response.group?.faculty;
+      this.direction = response.group?.direction;
+      this.groupName = response.group?.groupName;
+      this.students = response.students;
+    },
   },
   data() {
     return {
       modalIsVisible: false,
       chosenStudent: {},
       defaultUserIcon: defaultUserIcon,
-      faculty: "Факультет информационных технологий и анализа больших данных",
-      trainingDir: "Прикладная информатика (ФГОС-3+)",
-      groupName: "Группа ПИ18-2",
-      students: [
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: defaultUserIcon,
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-        {
-          name: "Акаев Ислам Салаудинович",
-          image: "",
-          email: "romnikitin@ozon.ru",
-          tel: "79179223089",
-        },
-      ],
+      faculty: "",
+      direction: "",
+      groupName: "",
+      students: [],
     };
   },
 };
