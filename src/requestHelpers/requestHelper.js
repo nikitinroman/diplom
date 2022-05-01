@@ -1,15 +1,6 @@
-// @ts-ignore
 import { BASE_URL } from "./endpoints.ts";
 import router from "../router";
 import store from "../store";
-
-// additionUrl = "",
-//     userID = "",
-//     token = "",
-//     method = "",
-//     getParam = "",
-//     postBody = "",
-//     formData = FormData
 
 export async function requestWrapper(payload = {}) {
   const authErrors = [401, 403];

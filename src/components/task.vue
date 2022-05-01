@@ -1,5 +1,5 @@
 <template>
-  <div @click="$emit('click')" class="task">
+  <div v-if="column === status" @click="$emit('click')" class="task">
     <p class="taskTitle">{{ title }}</p>
     <p class="taskSubtitle">{{ subtitle }}</p>
     <div class="taskDate">
@@ -27,6 +27,14 @@ export default {
       default: "",
     },
     endDate: {
+      type: String,
+      default: "",
+    },
+    column: {
+      type: String,
+      default: "",
+    },
+    status: {
       type: String,
       default: "",
     },

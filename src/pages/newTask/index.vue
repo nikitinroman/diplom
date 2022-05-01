@@ -12,12 +12,6 @@
           <Selector @change="changeSubject" :options="otherSubjects"/>
         </div>
       </div>
-      <CustomButton
-          class="button"
-          @click="onChoose"
-          text="Выбрать"
-          :disabled="disabledButton"
-      />
     </div>
     <h2>Задание</h2>
     <textarea rows="5" class="Textarea" v-model="taskTitle" placeholder="Введите название задания"/>
@@ -35,7 +29,7 @@
              v-model="taskEndDate"
              max="2022-12-31">
     </div>
-    <CustomButton text="Создать" @click="createTask"/>
+    <CustomButton text="Создать" :disabled="disabledButton" @click="createTask"/>
   </div>
 </template>
 
@@ -57,23 +51,36 @@ export default {
     return {
       loadHref: 'href',
       chosenSubject: "",
+      chosenSubjectId: null,
       chosenGroup: "",
+      chosenGroupId: null,
       taskTitle: "",
       taskSubtitle: "",
       endDate: "",
       taskDescription: "",
       taskEndDate: '',
+      taskEndDateChanged: false,
       formData: new FormData(),
       filesAdded: false,
-      otherSubjects: ["Матан", "Англ", "Русич"],
-      otherGroups: ["Пи18-2", "Пи18", "Пи18Пи18"],
+      otherSubjects: [],
+      otherGroups: [],
     }
   },
   computed: {
     ...mapGetters(['token', 'userId', 'groupId']),
     disabledButton() {
-      return !this.chosenSubject && !this.chosenGroup && !this.taskTitle, !this.taskSubtitle, !this.endDate, !this.taskDescription;
+      return !this.chosenSubject ||
+             !this.chosenGroup ||
+             !this.taskTitle ||
+             !this.taskSubtitle ||
+             !this.taskDescription ||
+             !this.isEndDateValid;
     },
+    isEndDateValid() {
+      // eslint-disable-next-line
+      const regexp = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/
+      return this.taskEndDate.match(regexp)
+    }
   },
   async mounted() {
     let today = new Date();
@@ -105,12 +112,8 @@ export default {
     changeGroup(val) {
       this.chosenGroup = val;
     },
-    async createTask() {
-      await this.postNewTask();
-      console.log('createTask');
-    },
-    onChoose() {
-      console.log(this.chosenSubject, this.chosenGroup);
+    createTask() {
+      this.postNewTask();
     },
     async fetchSubjectsAndGroupsInfo() {
       const response = await requestWrapper({additionUrl: '', userID: this.userId, token: this.token, method: "GET"});
@@ -118,34 +121,24 @@ export default {
       this.otherGroups = response.otherGroups;
     },
     async postNewTask() {
-      // {
-      //   "groupId": 1,
-      //     "subjectName": "Англ",
-      //     "taskTitle": "kek",
-      //     "taskSubtitle": "kek",
-      //     "taskDescription": "kek",
-      //     "taskEndDate": "23-03-2022"
-      // }
-
-      //доделать обязательность текстовых импутов
+      // Как андрей сделает ручку получения списка групп и предметов с айдишниками- допилить прокидывание сюда их
       const body = {
-        groupId: 1, // будет ручка новая
-        subjectName: 'Англ', // будет ручка новая
+        groupId: this.chosenGroup,
+        subjectName: this.chosenSubject,
         taskTitle: this.taskTitle,
         taskSubtitle: this.taskSubtitle,
         taskDescription: this.taskDescription,
         taskEndDate: this.taskEndDate
       }
       const response = await requestWrapper({additionUrl: NEW_TASK_URL, userID: this.userId, token: this.token, method: "POST", postBody: body});
-      this.taskId = response.taskId;
-      await this.addFileToTask();
+      await this.addFileToTask(response.taskId);
     },
-    async addFileToTask() {
-      if (this.filesAdded && this.taskId) {
+    async addFileToTask(taskId) {
+      if (this.filesAdded && taskId) {
         const body = {
           formData: this.formData
         }
-        await requestWrapper({additionUrl: NEW_FILE_TO_TASK, userID: this.userId, token: this.token, method: "POST", postBody: body, getParam: this.taskId});
+        await requestWrapper({additionUrl: NEW_FILE_TO_TASK, userID: this.userId, token: this.token, method: "POST", postBody: body, getParam: taskId});
       }
     },
   }

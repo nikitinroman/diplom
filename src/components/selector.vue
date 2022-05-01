@@ -12,7 +12,17 @@ export default {
   },
   data() {
     return {
-      inputValue: this.options[0]
+      inputVal: ''
+    }
+  },
+  computed: {
+    inputValue: {
+      get: function () {
+        return this.inputVal || this.options[0]
+      },
+      set: function (newValue) {
+        this.inputVal = newValue;
+      }
     }
   },
   watch: {

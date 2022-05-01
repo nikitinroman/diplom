@@ -1,55 +1,59 @@
 <template>
-  <div>
+  <div class="taskTableContainer">
     <div class="taskTable">
       <div class="row">
-        <div class="rowTitle">
-          <p>To do</p>
+        <div class="rowTitleContainer">
+          <p class="rowTitle">To do</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
-            v-for="(task, index) in taskList"
+            v-for="(task, index) in studentTasks"
             :key="index"
+            column="to_do"
           />
         </div>
       </div>
       <div class="row">
-        <div class="rowTitle">
-          <p>In progress</p>
+        <div class="rowTitleContainer">
+          <p class="rowTitle">In progress</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
-            v-for="(task, index) in taskList"
+            v-for="(task, index) in studentTasks"
             :key="index"
+            column="in_progress"
           />
         </div>
       </div>
       <div class="row">
-        <div class="rowTitle">
-          <p>In review</p>
+        <div class="rowTitleContainer">
+          <p class="rowTitle">In review</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
-            v-for="(task, index) in taskList"
+            v-for="(task, index) in studentTasks"
             :key="index"
+            column="in_review"
           />
         </div>
       </div>
       <div class="row">
-        <div class="rowTitle">
-          <p>Done</p>
+        <div class="rowTitleContainer">
+          <p class="rowTitle">Done</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
-            v-for="(task, index) in taskList"
+            v-for="(task, index) in studentTasks"
             :key="index"
+            column="done"
           />
         </div>
       </div>
@@ -142,222 +146,15 @@ export default {
 
   data() {
     return {
-      chosenTask: {},
       defaultUserIcon,
+      chosenTask: {},
       taskModalOpened: false,
       loadedFiles: [],
-      taskList: [
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          id: "123",
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Русский Русский Русскович",
-            position: "Старший преподаватель",
-            image: defaultUserIcon,
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-      ],
     };
   },
 
   computed: {
-    ...mapGetters(["getAuth", "getTasks"]),
+    ...mapGetters(["getAuth", "studentTasks"]),
   },
   mounted() {
     this.fetchTasks();
@@ -365,7 +162,7 @@ export default {
   methods: {
     ...mapActions(["fetchTasks"]),
     choseTask(index) {
-      this.chosenTask = this.taskList[index];
+      this.chosenTask = this.studentTasks[index];
       this.loadedFile = [];
       this.toggleModal();
     },
@@ -389,23 +186,40 @@ export default {
 </script>
 
 <style scoped>
+.taskTableContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
 .taskTable {
   display: flex;
+  flex: 1 0 auto;
 }
 
 .row {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
   width: 25%;
-  height: 100%;
   padding: 0 5px;
   box-sizing: border-box;
 }
 
-.rowTitle {
+.rowTitleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding-left: 10px;
   height: 50px;
 }
 
+.rowTitle {
+  margin: 0;
+}
+
 .rowContent {
+  flex-grow: 1;
   background-color: #f4f5f7;
   padding: 5px 15px 15px 15px;
 }

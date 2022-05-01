@@ -23,10 +23,14 @@ export default {
 
 <style>
 #app {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 .mainContent {
-  min-height: calc(100vh - 117px);
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
   padding: 20px;
   box-sizing: border-box;
 }

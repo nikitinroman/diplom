@@ -1,20 +1,30 @@
+// @ts-ignore
+import { BOARD_URL } from "../../requestHelpers/endpoints.ts";
+import { requestWrapper } from "../../requestHelpers/requestHelper.js";
+
 export default {
   state: () => ({
     tasks: [],
   }),
   mutations: {
     setTasks(state, payload) {
-      state.tasks = [...state.tasks, payload];
+      state.tasks = payload;
     },
   },
   getters: {
-    getTasks(state) {
+    studentTasks(state) {
       return state.tasks;
     },
   },
   actions: {
-    fetchTasks({ commit }) {
-      commit("setTasks", [1, 2, 3]);
+    async fetchTasks({ commit }) {
+      const response = await requestWrapper({
+        additionUrl: BOARD_URL,
+        userID: this.state.auth.userId,
+        token: this.state.auth.token,
+        method: "GET",
+      });
+      commit("setTasks", response.taskList);
     },
   },
 };

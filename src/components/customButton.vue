@@ -46,12 +46,13 @@ export default {
 
 .disabled {
   background-color: #F2F5F9;
+  color: gray;
   cursor: default;
 }
 
 .disabled:hover {
   background-color: #F2F5F9;
   border: 1px solid gray;
-  color: #172133;
+  color: gray;
 }
 </style>
