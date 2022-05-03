@@ -8,8 +8,8 @@
           <p class="selectorTitle">Предмет</p>
         </div>
         <div class="selectorsContainer">
-          <Selector @change="changeGroup" :options="otherGroups"/>
-          <Selector @change="changeSubject" :options="otherSubjects"/>
+          <Selector @change="changeGroup" :options="groups"/>
+          <Selector @change="changeSubject" :options="subjects"/>
         </div>
       </div>
     </div>
@@ -37,9 +37,7 @@
 import CustomButton from "../../components/customButton";
 import Selector from "../../components/selector";
 
-import {requestWrapper} from "@/requestHelpers/requestHelper.js";
-import {NEW_FILE_TO_TASK, NEW_TASK_URL} from "@/requestHelpers/endpoints.ts";
-import {mapGetters} from "vuex";
+import {mapGetters, mapActions} from "vuex";
 
 export default {
   name: "newTask",
@@ -50,9 +48,7 @@ export default {
   data() {
     return {
       loadHref: 'href',
-      chosenSubject: "",
       chosenSubjectId: null,
-      chosenGroup: "",
       chosenGroupId: null,
       taskTitle: "",
       taskSubtitle: "",
@@ -62,15 +58,13 @@ export default {
       taskEndDateChanged: false,
       formData: new FormData(),
       filesAdded: false,
-      otherSubjects: [],
-      otherGroups: [],
     }
   },
   computed: {
-    ...mapGetters(['token', 'userId', 'groupId']),
+    ...mapGetters(['groups', 'subjects']),
     disabledButton() {
-      return !this.chosenSubject ||
-             !this.chosenGroup ||
+      return !this.chosenSubjectId ||
+             !this.chosenGroupId ||
              !this.taskTitle ||
              !this.taskSubtitle ||
              !this.taskDescription ||
@@ -96,10 +90,9 @@ export default {
     today = yyyy + '-' + mm + '-' + dd;
 
     document.getElementById("endDate").setAttribute("min", today);
-
-    await this.fetchSubjectsAndGroupsInfo();
   },
   methods: {
+    ...mapActions(['uploadFile', 'postNewTask']),
     loadFile(event) {
       this.filesAdded = true;
       for (let i = 0; i < event.target.files.length; i++) {
@@ -107,38 +100,39 @@ export default {
       }
     },
     changeSubject(val) {
-      this.chosenSubject = val;
+      this.chosenSubjectId = val;
     },
     changeGroup(val) {
-      this.chosenGroup = val;
+      this.chosenGroupId = val;
     },
     createTask() {
-      this.postNewTask();
+      this.addNewTask();
     },
-    async fetchSubjectsAndGroupsInfo() {
-      const response = await requestWrapper({additionUrl: '', userID: this.userId, token: this.token, method: "GET"});
-      this.otherSubjects = response.otherSubjects;
-      this.otherGroups = response.otherGroups;
+    clearFields() {
+      this.taskTitle = "";
+      this.taskSubtitle = "";
+      this.taskDescription = "";
+      this.taskEndDate = '';
+      this.taskEndDateChanged = false;
+      this.formData = new FormData();
+      this.filesAdded = false;
     },
-    async postNewTask() {
-      // Как андрей сделает ручку получения списка групп и предметов с айдишниками- допилить прокидывание сюда их
+    async addNewTask() {
       const body = {
-        groupId: this.chosenGroup,
-        subjectName: this.chosenSubject,
+        groupId: this.chosenGroupId,
+        subjectId: this.chosenSubjectId,
         taskTitle: this.taskTitle,
         taskSubtitle: this.taskSubtitle,
         taskDescription: this.taskDescription,
         taskEndDate: this.taskEndDate
       }
-      const response = await requestWrapper({additionUrl: NEW_TASK_URL, userID: this.userId, token: this.token, method: "POST", postBody: body});
+      const response = await this.postNewTask(body)
       await this.addFileToTask(response.taskId);
+      this.clearFields();
     },
     async addFileToTask(taskId) {
       if (this.filesAdded && taskId) {
-        const body = {
-          formData: this.formData
-        }
-        await requestWrapper({additionUrl: NEW_FILE_TO_TASK, userID: this.userId, token: this.token, method: "POST", postBody: body, getParam: taskId});
+        await this.uploadFile({taskId, formData: this.formData});
       }
     },
   }

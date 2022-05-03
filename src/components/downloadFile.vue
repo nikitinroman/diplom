@@ -10,11 +10,11 @@ export default {
   props: {
     href: {
       type: String,
-      default: 'https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc'
+      default: ''
     },
     filename: {
       type: String,
-      default: 'filename'
+      default: 'file'
     }
   },
   methods: {
@@ -27,9 +27,9 @@ export default {
         const a = document.createElement('a');
         a.href = url;
         a.download = this.filename;
-        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+        document.body.appendChild(a);
         a.click();
-        a.remove();  //afterwards we remove the element again
+        a.remove();
       })
     },
   }
@@ -37,5 +37,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

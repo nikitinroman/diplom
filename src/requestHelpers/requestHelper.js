@@ -5,29 +5,28 @@ import store from "../store";
 export async function requestWrapper(payload = {}) {
   const authErrors = [401, 403];
   let body;
-  let contentType;
+  let headers;
   let fullRequestUrl = BASE_URL + payload.additionUrl;
 
   if (payload.getParam) {
     fullRequestUrl += payload.getParam;
   }
 
-  contentType = "application/json;charset=utf-8";
+  headers = {
+    Authorization: payload.userID + " " + payload.token,
+  }
 
   if (payload.postBody) {
+    headers["Content-Type"] = 'application/json;charset=utf-8';
     body = JSON.stringify(payload.postBody);
   } else if (payload.formData) {
     body = payload.formData;
-    contentType = "multipart/form-data";
   }
 
   try {
     const response = await fetch(fullRequestUrl, {
       method: payload.method,
-      headers: {
-        "Content-Type": contentType,
-        Authorization: payload.userID + " " + payload.token,
-      },
+      headers: headers,
       body: body,
     });
     if (authErrors.includes(response.status)) {

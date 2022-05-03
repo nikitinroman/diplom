@@ -1,14 +1,14 @@
 <template>
   <div class="table">
-    <div class="heading">
+    <div v-if="editableMode" class="heading">
       <div class="container">
         <div>
           <p class="selectorTitle">Группа</p>
           <p class="selectorTitle">Предмет</p>
         </div>
         <div class="selectorsContainer">
-          <Selector @change="changeGroup" :options="otherGroups" />
-          <Selector @change="changeSubject" :options="otherSubjects" />
+          <Selector @change="changeGroup" :options="groups" />
+          <Selector @change="changeSubject" :options="subjects" />
         </div>
       </div>
       <Button
@@ -81,19 +81,18 @@
               class="downloadFile"
               :filename="file.name"
               :href="file.href"/>
-          <!--        https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc-->
         </div>
-<!--        <div v-if="chosenTask.options" class="buttonsContainer">-->
-<!--          <Button-->
-<!--              @click="setTaskStatus(chosenTask.id, option)"-->
-<!--              v-bind="option"-->
-<!--              v-for="(option, index) in chosenTask.options"-->
-<!--              :key="index + option.text"-->
-<!--          />-->
-<!--        </div>-->
+        <div v-if="chosenTask.options" class="buttonsContainer">
+          <Button
+              @click="setTaskStatus(chosenTask.id, option)"
+              v-bind="option"
+              v-for="(option, index) in chosenTask.options"
+              :key="index + option.text"
+          />
+        </div>
       </div>
     </Modal>
-    <Modal @close="toggleEditModal" v-if="editableModalIsOpened">
+    <Modal @close="toggleEditModal" v-if="editableModalIsOpened" :overflow="true">
       <div class="modalContent">
         <h1>Выставление оценки</h1>
         <h2 v-if="chosenTask.status" class="taskStatus">
@@ -121,15 +120,17 @@
             </optgroup>
           </select>
         </div>
-        <div
-            v-if="chosenTask.files">
+        <div v-if="chosenTask.files">
           <DownloadFile
               v-for="(file, index) in chosenTask.files"
               :key="index + file.name"
               class="downloadFile"
               :filename="file.name"
               :href="file.href"/>
-          <!--        https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc-->
+        </div>
+        <div>
+          <h2>Прикрепить файлы к заданию</h2>
+          <input type="file" @change="loadFile" multiple>
         </div>
         <Button
             class="Button"
@@ -147,7 +148,7 @@ import Modal from "../../components/modal";
 import Button from "../../components/customButton";
 import Selector from "../../components/selector";
 import DownloadFile from '../../components/downloadFile'
-import {mapGetters} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "index",
@@ -158,7 +159,7 @@ export default {
     Selector
   },
   computed: {
-    ...mapGetters(['editableMode']),
+    ...mapGetters(['editableMode', 'groups', 'subjects']),
     disabledButton() {
       return !this.chosenSubject && !this.chosenGroup;
     },
@@ -173,8 +174,7 @@ export default {
       chosenSubject: "",
       chosenGroup: "",
       defaultUserIcon: defaultUserIcon,
-      otherSubjects: ["Матан", "Англ", "Русич"],
-      otherGroups: ["Пи18-2", "Пи18", "Пи18Пи18"],
+      formData: new FormData(),
       table: [
           [
             {
@@ -220,9 +220,9 @@ export default {
           {
             text: "5",
             status: "To do",
-            id: "123",
+            id: "1",
             data: {
-              id: "123",
+              id: "1",
               title: "Задание",
               subtitle: "Краткая информация",
               startDate: "20.03.2022",
@@ -246,9 +246,9 @@ export default {
           {
             text: "",
             status: "In progress",
-            id: "1233",
+            id: "2",
             data: {
-              id: "1233",
+              id: "2",
               title: "Задание",
               subtitle: "Краткая информация",
               startDate: "20.03.2022",
@@ -478,6 +478,7 @@ export default {
     };
   },
   methods: {
+    ...mapActions(['uploadFile']),
     openModal(item) {
       this.chosenTask = item.data;
       if (item.data && !this.editableMode) {
@@ -523,6 +524,13 @@ export default {
     },
     onChoose() {
       console.log(this.chosenSubject, this.chosenGroup);
+    },
+    async loadFile(event) {
+      for (let i = 0; i < event.target.files.length; i++) {
+        this.formData.append(`file-${i}`, event.target.files[i]);
+      }
+      await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
+      this.formData = new FormData();
     },
   },
 };

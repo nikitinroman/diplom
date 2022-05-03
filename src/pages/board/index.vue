@@ -58,7 +58,7 @@
         </div>
       </div>
     </div>
-    <Modal @close="toggleModal" v-if="taskModalOpened">
+    <Modal @close="toggleModal" v-if="taskModalOpened" :overflow="true">
       <div class="modalContent">
         <div v-if="chosenTask.person">
           <div v-if="chosenTask.person.image" class="studentAvatarContainer">
@@ -109,9 +109,7 @@
               class="downloadFile"
               :filename="file.name"
               :href="file.href"/>
-          <!--        https://file-examples.com/wp-content/uploads/2017/02/file-sample_100kB.doc-->
         </div>
-
         <div v-if="chosenTask.options" class="buttonsContainer">
           <Button
             @click="setTaskStatus(chosenTask.id, option)"
@@ -150,6 +148,7 @@ export default {
       chosenTask: {},
       taskModalOpened: false,
       loadedFiles: [],
+      formData: new FormData()
     };
   },
 
@@ -160,7 +159,7 @@ export default {
     this.fetchTasks();
   },
   methods: {
-    ...mapActions(["fetchTasks"]),
+    ...mapActions(["fetchTasks", "uploadFile"]),
     choseTask(index) {
       this.chosenTask = this.studentTasks[index];
       this.loadedFile = [];
@@ -178,9 +177,13 @@ export default {
       })
       this.toggleModal();
     },
-    loadFile(event) {
-      this.loadedFiles = event.target.files
-    }
+    async loadFile(event) {
+      for (let i = 0; i < event.target.files.length; i++) {
+        this.formData.append(`file-${i}`, event.target.files[i]);
+      }
+      await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
+      this.formData = new FormData();
+    },
   },
 };
 </script>
@@ -225,6 +228,8 @@ export default {
 }
 
 .modalContent {
+  display: flex;
+  flex-direction: column;
   width: 600px;
 }
 

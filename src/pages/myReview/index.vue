@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="myReviewContainer">
     <h1>Ваши задачи на оценку</h1>
     <div class="heading">
       <div class="container">
@@ -8,8 +8,8 @@
           <p class="selectorTitle">Предмет</p>
         </div>
         <div class="selectorsContainer">
-          <Selector @change="changeGroup" :options="otherGroups" />
-          <Selector @change="changeSubject" :options="otherSubjects" />
+          <Selector @change="changeGroup" :options="groups" />
+          <Selector @change="changeSubject" :options="subjects" />
         </div>
       </div>
       <CustomButton
@@ -87,6 +87,19 @@
             </optgroup>
           </select>
         </div>
+        <div
+            v-if="chosenTask.files">
+          <DownloadFile
+              v-for="(file, index) in chosenTask.files"
+              :key="index + file.name"
+              class="downloadFile"
+              :filename="file.name"
+              :href="file.href"/>
+        </div>
+        <div>
+          <h2>Прикрепить файлы к заданию</h2>
+          <input type="file" @change="loadFile" multiple>
+        </div>
         <CustomButton
           class="Button"
           @click="setTaskMark(chosenTask.id)"
@@ -107,7 +120,9 @@ import CustomButton from "../../components/customButton";
 import Selector from "../../components/selector";
 import Task from "../../components/task";
 import Modal from "../../components/modal";
+import DownloadFile from '../../components/downloadFile'
 import defaultUserIcon from "@/assets/default_user_icon.png";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "myReview",
@@ -116,6 +131,7 @@ export default {
     Selector,
     Task,
     Modal,
+    DownloadFile
   },
   data() {
     return {
@@ -126,8 +142,7 @@ export default {
       modalIsVisible: false,
       chosenSubject: "",
       chosenGroup: "",
-      otherSubjects: ["Матан", "Англ", "Русич"],
-      otherGroups: ["Пи18-2", "Пи18", "Пи18Пи18"],
+      formData: new FormData(),
       taskList: [
         {
           title: "Задание",
@@ -160,11 +175,13 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['groups', 'subjects']),
     disabledButton() {
       return !this.chosenSubject && !this.chosenGroup;
     },
   },
   methods: {
+    ...mapActions(['uploadFile']),
     changeSubject(val) {
       this.chosenSubject = val;
     },
@@ -204,12 +221,25 @@ export default {
       );
       this.toggleModal();
       this.clearFields();
-    }
+    },
+    async loadFile(event) {
+      for (let i = 0; i < event.target.files.length; i++) {
+        this.formData.append(`file-${i}`, event.target.files[i]);
+      }
+      await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
+      this.formData = new FormData();
+    },
   },
 };
 </script>
 
 <style scoped>
+.myReviewContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
 .heading {
   display: flex;
   align-items: center;
@@ -233,6 +263,7 @@ export default {
 }
 
 .allTasks {
+  flex: 1 0 auto;
   margin-top: 24px;
   padding: 0 16px 16px 16px;
   background-color: #f2f5f9;
@@ -331,5 +362,10 @@ export default {
 
 .Select {
   margin-left: 16px;
+}
+
+.downloadFile {
+  display: inline-block;
+  margin: 16px 0;
 }
 </style>

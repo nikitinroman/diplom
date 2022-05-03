@@ -14,6 +14,8 @@ export default {
     phone: "",
     email: "",
     groupId: "",
+    subjects: [],
+    groups: []
   }),
   mutations: {
     setAuth(state, payload) {
@@ -33,6 +35,12 @@ export default {
       state.email = payload.email;
       state.phone = payload.phone;
       state.groupId = payload.groupId;
+    },
+    setGroups(state, groups) {
+      state.groups = groups;
+    },
+    setSubjects(state, subjects) {
+      state.subjects = subjects;
     },
   },
   getters: {
@@ -66,6 +74,12 @@ export default {
     token(state) {
       return state.token;
     },
+    groups(state) {
+      return state.groups;
+    },
+    subjects(state) {
+      return state.subjects;
+    }
   },
   actions: {
     async fetchAuth({ commit }, payload) {
@@ -93,6 +107,8 @@ export default {
         alert(`Упс, что-то пошло не так! Ошибка: ${response.error}`);
       } else if (response) {
         commit("setEditableModeStatus", !response.user.isStudent);
+        commit("setGroups", response.groups);
+        commit("setSubjects", response.subjects);
         commit("setToken", response.token);
         commit("setUserInfo", response.user);
         commit("setAuth", true);
