@@ -96,7 +96,7 @@ export default {
     loadFile(event) {
       this.filesAdded = true;
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i}`, event.target.files[i]);
+        this.formData.append(`file-${i+1}`, event.target.files[i]);
       }
     },
     changeSubject(val) {
@@ -132,7 +132,7 @@ export default {
     },
     async addFileToTask(taskId) {
       if (this.filesAdded && taskId) {
-        await this.uploadFile({taskId, formData: this.formData});
+        await this.uploadFile({taskId: taskId + '?isTask=true', formData: this.formData});
       }
     },
   }

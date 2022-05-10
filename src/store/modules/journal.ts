@@ -1,34 +1,35 @@
 // @ts-ignore
-import { BOARD_URL, UPDATE_TASK_STATUS_URL } from "../../requestHelpers/endpoints.ts";
+import { JOURNAL_URL, SET_TASK_MARK_URL } from "../../requestHelpers/endpoints.ts";
 import { requestWrapper } from "../../requestHelpers/requestHelper.js";
 
 export default {
   state: () => ({
-    tasks: [],
+    table: [],
   }),
   mutations: {
-    setTasks(state, payload) {
-      state.tasks = payload;
+    setJournalTable(state, payload) {
+      state.table = payload;
     },
   },
   getters: {
-    studentTasks(state) {
-      return state.tasks;
+    journalTable(state) {
+      return state.table;
     },
   },
   actions: {
-    async fetchTasks({ commit }) {
+    async fetchGroupSubjectJournalTable({ commit }, getParam) {
       const response = await requestWrapper({
-        additionUrl: BOARD_URL,
+        additionUrl: JOURNAL_URL,
         userID: this.state.auth.userId,
         token: this.state.auth.token,
+        getParam: getParam,
         method: "GET",
       });
-      commit("setTasks", response.taskList);
+      commit("setJournalTable", response.table);
     },
-    async updateTaskStatus(_, postBody) {
+    async setTaskMark(_, postBody) {
       await requestWrapper({
-        additionUrl: UPDATE_TASK_STATUS_URL,
+        additionUrl: SET_TASK_MARK_URL,
         userID: this.state.auth.userId,
         token: this.state.auth.token,
         postBody: postBody,

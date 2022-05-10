@@ -1,24 +1,25 @@
 <template>
   <div class="table">
-    <div v-if="editableMode" class="heading">
-      <div class="container">
-        <div>
-          <p class="selectorTitle">Группа</p>
-          <p class="selectorTitle">Предмет</p>
+    <div class="wrapper">
+      <div v-if="editableMode" class="heading">
+        <div class="container">
+          <div>
+            <p class="selectorTitle">Группа</p>
+            <p class="selectorTitle">Предмет</p>
+          </div>
+          <div class="selectorsContainer">
+            <Selector @change="changeGroup" :options="groups"/>
+            <Selector @change="changeSubject" :options="subjects"/>
+          </div>
         </div>
-        <div class="selectorsContainer">
-          <Selector @change="changeGroup" :options="groups" />
-          <Selector @change="changeSubject" :options="subjects" />
-        </div>
+        <Button
+            @click="onChoose"
+            text="Выбрать"
+            :disabled="disabledButton"
+        />
       </div>
-      <Button
-          class="button"
-          @click="onChoose"
-          text="Выбрать"
-          :disabled="disabledButton"
-      />
     </div>
-    <div class="row" v-for="(row, index) in table" :key="index">
+    <div class="row" v-for="(row, index) in journalTable" :key="index">
       <div
           :class="['cell', { firstCell: item.firstCell, pointer: item.data }]"
           v-for="(item, index) in row"
@@ -41,13 +42,14 @@
           {{ chosenTask.description }}
         </p>
         <div v-if="chosenTask.person">
-          <div v-if="chosenTask.person.image" class="studentAvatarContainer">
+          <div class="studentAvatarContainer">
             <img
                 class="studentAvatar"
                 :src="chosenTask.person.image || defaultUserIcon"
                 alt="student_image"
             />
           </div>
+          <p>{{ chosenTask.person.name }}</p>
           <p>{{ chosenTask.person.position }}</p>
           <div class="personContacts">
             <div class="personContactsContent">
@@ -68,7 +70,7 @@
             </div>
           </div>
         </div>
-        <div v-if="chosenTask.startDate || chosenTask.endDate" class="taskDate">
+        <div v-if="chosenTask.startDate || chosenTask.endDate" class="taskDateContainer">
           <p class="taskDate">{{ chosenTask.startDate }}</p>
           <span class="taskSeparator">---</span>
           <p class="taskDate">{{ chosenTask.endDate }}</p>
@@ -82,7 +84,7 @@
               :filename="file.name"
               :href="file.href"/>
         </div>
-        <div v-if="chosenTask.options" class="buttonsContainer">
+        <div v-if="chosenTask.options" :class="{buttonsContainer: true, centering: chosenTask.options.length === 1}">
           <Button
               @click="setTaskStatus(chosenTask.id, option)"
               v-bind="option"
@@ -110,13 +112,13 @@
           <p>Выберите оценку из списка</p>
           <select class="Select" v-model="inputMark" name="marks" id="marks">
             <optgroup label="Положительные оценки">
-              <option value="5">Отлично</option>
-              <option value="4">Хорошо</option>
-              <option value="3">Удовлетворительно</option>
+              <option :value="5">Отлично</option>
+              <option :value="4">Хорошо</option>
+              <option :value="3">Удовлетворительно</option>
             </optgroup>
             <optgroup label="Негативные оценки">
-              <option value="2">Неудовлетворительно</option>
-              <option value="1">Не выполнено</option>
+              <option :value="2">Неудовлетворительно</option>
+              <option :value="1">Не выполнено</option>
             </optgroup>
           </select>
         </div>
@@ -134,8 +136,23 @@
         </div>
         <Button
             class="Button"
-            @click="setTaskMark(chosenTask.id)"
+            @click="sendTaskMark(chosenTask.id)"
             :text="'Поставить оценку'"
+        />
+        <div v-if="chosenTask.options &&
+        chosenTask.options.length > 1" class="buttonsContainer">
+          <Button
+              @click="setTaskStatus(chosenTask.id, option)"
+              v-bind="option"
+              v-for="(option, index) in chosenTask.options"
+              :key="index + option.text"
+          />
+        </div>
+        <Button
+            v-else-if="chosenTask.options"
+            class="Button"
+            @click="setTaskStatus(chosenTask.id, chosenTask.options[0])"
+            v-bind="chosenTask.options[0]"
         />
       </div>
     </Modal>
@@ -159,7 +176,7 @@ export default {
     Selector
   },
   computed: {
-    ...mapGetters(['editableMode', 'groups', 'subjects']),
+    ...mapGetters(['editableMode', 'groups', 'subjects', 'journalTable']),
     disabledButton() {
       return !this.chosenSubject && !this.chosenGroup;
     },
@@ -171,314 +188,26 @@ export default {
       inputMarkMessage: '',
       inputMark: 5,
       chosenTask: {},
-      chosenSubject: "",
-      chosenGroup: "",
+      chosenSubject: 0,
+      chosenGroup: 0,
       defaultUserIcon: defaultUserIcon,
       formData: new FormData(),
-      table: [
-          [
-            {
-              firstCell: true,
-              text: "Дата"
-            },
-            {
-              text: "06.09.2000"
-            },
-            {
-              text: "06.09.2000"
-            },
-            {
-              text: "06.09.2000"
-            },
-            {
-              text: "06.09.2000"
-            },
-            {
-              text: "06.09.2000"
-            },
-            {
-              text: "Сумма баллов"
-            },
-          ],
-        [
-          {
-            firstCell: true,
-            text: "Русский",
-            data: {
-              title: "Русский язык",
-              description:
-                  "Русский языкРусский языкРусский языкРусский языкРусский языкРусский языкРусский языкРусский языкРусский язык",
-              person: {
-                name: "Русский Русский Русскович",
-                position: "Старший преподаватель",
-                image: defaultUserIcon,
-                email: "romnikitin@ozon.ru",
-                tel: "79179223089",
-              },
-            },
-          },
-          {
-            text: "5",
-            status: "To do",
-            id: "1",
-            data: {
-              id: "1",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "",
-            status: "In progress",
-            id: "2",
-            data: {
-              id: "2",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "5",
-            status: "To do",
-            id: "12н34",
-            data: {
-              id: "12н34",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "",
-            status: "To do",
-            id: "12ааа3",
-            data: {
-              id: "12ааа3",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {},
-          {
-            text: "5",
-          },
-        ],
-        [
-          {
-            firstCell: true,
-            text: "English",
-            data: {
-              title: "english язык",
-              description:
-                  "Русский языкРуenglish языкenglish языкenglish языксский языкРусскийenglish языкenglish языкenglish языкenglish языкenglish язык языкРусский языкРусский языкРусский языкРусский языкРусский языкРусский язык",
-              person: {
-                name: "english язык english язык Русскович",
-                position: "Старший преподаenglish языкватель",
-                image: defaultUserIcon,
-                email: "romnikitin@ozon.ru",
-                tel: "79179223089",
-              },
-            },
-          },
-          {
-            text: "4",
-            status: "To do",
-            id: "123q",
-            data: {
-              id: "123q",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "-",
-            status: "To do",
-            id: "12d3",
-            data: {
-              id: "12d3",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "2",
-            status: "To do",
-            id: "123ds",
-            data: {
-              id: "123ds",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "2",
-            status: "To do",
-            id: "asda123",
-            data: {
-              id: "asda123",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-          {
-            text: "",
-            status: "To do",
-            id: "12яячяччя3",
-            data: {
-              id: "12яячяччя3",
-              title: "Задание",
-              subtitle: "Краткая информация",
-              startDate: "20.03.2022",
-              endDate: "30.03.2022",
-              status: "To do",
-              editable: true,
-              options: [
-                {
-                  text: "Начать делать",
-                  action: "in_progress",
-                },
-                {
-                  text: "На проверку",
-                  action: "in_review",
-                },
-              ],
-              description:
-                  "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-            },
-          },
-        ],
-      ],
     };
   },
+  async mounted() {
+    await this.reloadTable();
+  },
   methods: {
-    ...mapActions(['uploadFile']),
+    ...mapActions(['uploadFile', 'fetchGroupSubjectJournalTable', 'setTaskMark', 'updateTaskStatus']),
+    async reloadTable() {
+      if (this.editableMode) {
+        const groupId = this.chosenGroup || this.groups[0].id;
+        const subjectId = this.chosenSubject || this.subjects[0].id
+        await this.fetchGroupSubjectJournalTable(`groupId=${groupId}&subjectId=${subjectId}`);
+      } else {
+        // this.fetchGroupSubjectJournalTable(`groupId=${this.groups[0].id}&subjectId=${this.subjects[0].id}`);
+      }
+    },
     openModal(item) {
       this.chosenTask = item.data;
       if (item.data && !this.editableMode) {
@@ -489,30 +218,32 @@ export default {
       }
     },
     toggleModal() {
-      this.modalIsOpened = !this.modalIsOpened;
+      if (this.editableMode) {
+        this.editableModalIsOpened = !this.editableModalIsOpened;
+      } else {
+        this.modalIsOpened = !this.modalIsOpened;
+      }
     },
     toggleEditModal() {
       this.editableModalIsOpened = !this.editableModalIsOpened;
     },
-    setTaskStatus(id, status) {
-      console.log(
-          "дернуть ручку и передать айди и выбранный статус",
-          id,
-          status
-      );
+    async setTaskStatus(id, status) {
+      await this.updateTaskStatus({answerId: id, status: status.action});
       this.toggleModal();
+      await this.reloadTable();
     },
     clearFields() {
       this.inputMarkMessage = ''
-      this.inputMark = ''
+      this.inputMark = 5
     },
-    setTaskMark(id) {
-      console.log(
-          "дернуть ручку и передать айди и поля",
-          id,
-          this.inputMarkMessage,
-          this.inputMark
-      );
+    async sendTaskMark(id) {
+      await this.setTaskMark({
+        answerId: id,
+        comment: this.inputMarkMessage,
+        mark: this.inputMark
+      });
+      await this.reloadTable();
+
       this.toggleEditModal();
       this.clearFields();
     },
@@ -522,12 +253,12 @@ export default {
     changeGroup(val) {
       this.chosenGroup = val;
     },
-    onChoose() {
-      console.log(this.chosenSubject, this.chosenGroup);
+    async onChoose() {
+      await this.reloadTable(this.chosenGroup, this.chosenSubject);
     },
     async loadFile(event) {
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i}`, event.target.files[i]);
+        this.formData.append(`file-${i+1}`, event.target.files[i]);
       }
       await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
       this.formData = new FormData();
@@ -548,6 +279,7 @@ export default {
 .cell {
   display: flex;
   height: 50px;
+  min-width: 100px;
   width: 100px;
   padding: 8px 12px;
   box-sizing: border-box;
@@ -557,7 +289,9 @@ export default {
 }
 
 .firstCell {
+  position: fixed;
   background-color: #cccccc;
+  min-width: 200px;
   width: 200px;
   justify-content: flex-start;
 }
@@ -583,7 +317,8 @@ export default {
   margin: 0 0 10px 0;
 }
 
-.taskDate {
+.taskDateContainer {
+  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -635,6 +370,7 @@ export default {
 }
 
 .heading {
+  position: fixed;
   display: flex;
   align-items: center;
   margin-bottom: 24px;
@@ -655,5 +391,27 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
+
+.centering {
+  justify-content: center;
+}
+
+.wrapper {
+  height: 75px;
+}
+
+.studentAvatarContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.studentAvatar {
+  height: 100px;
+  width: 100px;
+  max-width: 100px;
+  max-height: 100px;
 }
 </style>

@@ -20,23 +20,27 @@
       />
     </div>
     <div class="allTasks">
-      <Task
-        @click="choseTask(index)"
-        v-bind="task"
-        v-for="(task, index) in taskList"
-        :key="index"
-      />
+      <div class="tasksOnReviewList">
+        <Task
+            v-for="(task, index) in tasksForReview"
+            @click="choseTask(index)"
+            v-bind="task"
+            class="taskOnReview"
+            :key="index"
+        />
+      </div>
     </div>
     <Modal v-if="modalIsVisible" @close="toggleModal" :overflow="true">
       <div class="modalContent">
         <div v-if="chosenTask.person">
-          <div v-if="chosenTask.person.image" class="studentAvatarContainer">
+          <div class="studentAvatarContainer">
             <img
               class="studentAvatar"
               :src="chosenTask.person.image || defaultUserIcon"
               alt="student_image"
             />
           </div>
+          <p>{{ chosenTask.person.name }}</p>
           <p>{{ chosenTask.person.position }}</p>
           <div class="personContacts">
             <div class="personContactsContent">
@@ -61,7 +65,7 @@
         <p class="taskTitle">{{ chosenTask.title }}</p>
         <p class="taskSubtitle">{{ chosenTask.subtitle }}</p>
         <p class="taskDescription">{{ chosenTask.description }}</p>
-        <div class="taskDate">
+        <div class="taskDateContainer">
           <p class="taskDate">{{ chosenTask.startDate }}</p>
           <span class="taskSeparator">---</span>
           <p class="taskDate">{{ chosenTask.endDate }}</p>
@@ -102,7 +106,7 @@
         </div>
         <CustomButton
           class="Button"
-          @click="setTaskMark(chosenTask.id)"
+          @click="sendTaskMark(chosenTask.id)"
           :text="'Поставить оценку'"
         />
         <CustomButton
@@ -143,56 +147,32 @@ export default {
       chosenSubject: "",
       chosenGroup: "",
       formData: new FormData(),
-      taskList: [
-        {
-          title: "Задание",
-          subtitle: "Краткая информация",
-          startDate: "20.03.2022",
-          endDate: "30.03.2022",
-          status: "To do",
-          id: "123",
-          options: [
-            {
-              text: "Начать делать",
-              action: "in_progress",
-            },
-            {
-              text: "На проверку",
-              action: "in_review",
-            },
-          ],
-          description:
-            "сложное или не очень задание но все равно студент должен справиться инфа сотка",
-          person: {
-            name: "Cтудентов студент студентыч",
-            position: "Старший студентосик",
-            image: "",
-            email: "romnikitin@ozon.ru",
-            tel: "79179223089",
-          },
-        },
-      ],
     };
   },
   computed: {
-    ...mapGetters(['groups', 'subjects']),
+    ...mapGetters(['groups', 'subjects', 'tasksForReview']),
     disabledButton() {
       return !this.chosenSubject && !this.chosenGroup;
     },
   },
+  async mounted() {
+    await this.fetchTasksForReview('groupId=-1&subjectId=-1');
+  },
   methods: {
-    ...mapActions(['uploadFile']),
+    ...mapActions(['uploadFile', 'fetchTasksForReview', 'setTaskMark', 'updateTaskStatus']),
     changeSubject(val) {
       this.chosenSubject = val;
     },
     changeGroup(val) {
       this.chosenGroup = val;
     },
-    onChoose() {
-      console.log(this.chosenSubject, this.chosenGroup);
+    async onChoose() {
+      const groupId = this.chosenGroup || this.groups[0].id;
+      const subjectId = this.chosenSubject || this.subjects[0].id;
+      await this.fetchTasksForReview(`groupId=${groupId}&subjectId=${subjectId}`);
     },
     choseTask(index) {
-      this.chosenTask = this.taskList[index];
+      this.chosenTask = this.tasksForReview[index];
       this.toggleModal();
     },
     toggleModal() {
@@ -202,29 +182,25 @@ export default {
       this.inputMarkMessage = ''
       this.inputMark = ''
     },
-    setTaskMark(id) {
-      console.log(
-          "дернуть ручку и передать айди и поля",
-          id,
-          this.inputMarkMessage,
-          this.inputMark
-      );
+    async sendTaskMark(id) {
+      await this.setTaskMark({
+        answerId: id,
+        comment: this.inputMarkMessage,
+        mark: this.inputMark
+      });
+      await this.onChoose();
       this.toggleModal();
       this.clearFields();
     },
-    toRework(id) {
-      console.log(
-          "дернуть ручку и передать айди и поля",
-          id,
-          this.inputMarkMessage,
-          this.inputMark
-      );
+    async toRework(id) {
+      await this.updateTaskStatus({answerId: id, comment: this.inputMarkMessage, status: 'in_progress'});
+      await this.onChoose();
       this.toggleModal();
       this.clearFields();
     },
     async loadFile(event) {
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i}`, event.target.files[i]);
+        this.formData.append(`file-${i+1}`, event.target.files[i]);
       }
       await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
       this.formData = new FormData();
@@ -267,9 +243,6 @@ export default {
   margin-top: 24px;
   padding: 0 16px 16px 16px;
   background-color: #f2f5f9;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
 }
 
 .modalContent {
@@ -283,7 +256,8 @@ export default {
   margin: 0 0 10px 0;
 }
 
-.taskDate {
+.taskDateContainer {
+  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -367,5 +341,29 @@ export default {
 .downloadFile {
   display: inline-block;
   margin: 16px 0;
+}
+
+.taskOnReview {
+  width: 180px;
+}
+
+.tasksOnReviewList {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.studentAvatarContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.studentAvatar {
+  height: 100px;
+  width: 100px;
+  max-width: 100px;
+  max-height: 100px;
 }
 </style>

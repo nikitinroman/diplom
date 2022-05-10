@@ -3,56 +3,56 @@
     <div class="taskTable">
       <div class="row">
         <div class="rowTitleContainer">
-          <p class="rowTitle">To do</p>
+          <p class="rowTitle">К выполнению</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
             v-for="(task, index) in studentTasks"
-            :key="index"
+            :key="index + 'to_do'"
             column="to_do"
           />
         </div>
       </div>
       <div class="row">
         <div class="rowTitleContainer">
-          <p class="rowTitle">In progress</p>
+          <p class="rowTitle">В процессе выполнения</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
             v-for="(task, index) in studentTasks"
-            :key="index"
+            :key="index + 'in_progress'"
             column="in_progress"
           />
         </div>
       </div>
       <div class="row">
         <div class="rowTitleContainer">
-          <p class="rowTitle">In review</p>
+          <p class="rowTitle">На проверке</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
             v-for="(task, index) in studentTasks"
-            :key="index"
+            :key="index + 'in_review'"
             column="in_review"
           />
         </div>
       </div>
       <div class="row">
         <div class="rowTitleContainer">
-          <p class="rowTitle">Done</p>
+          <p class="rowTitle">Завершено</p>
         </div>
         <div class="rowContent">
           <Task
             @click="choseTask(index)"
             v-bind="task"
             v-for="(task, index) in studentTasks"
-            :key="index"
+            :key="index + 'done'"
             column="done"
           />
         </div>
@@ -61,13 +61,14 @@
     <Modal @close="toggleModal" v-if="taskModalOpened" :overflow="true">
       <div class="modalContent">
         <div v-if="chosenTask.person">
-          <div v-if="chosenTask.person.image" class="studentAvatarContainer">
+          <div class="studentAvatarContainer">
             <img
               class="studentAvatar"
               :src="chosenTask.person.image || defaultUserIcon"
               alt="student_image"
             />
           </div>
+          <p>{{ chosenTask.person.name }}</p>
           <p>{{ chosenTask.person.position }}</p>
           <div class="personContacts">
             <div class="personContactsContent">
@@ -92,7 +93,7 @@
         <p class="taskTitle">{{ chosenTask.title }}</p>
         <p class="taskSubtitle">{{ chosenTask.subtitle }}</p>
         <p class="taskDescription">{{ chosenTask.description }}</p>
-        <div class="taskDate">
+        <div class="taskDateContainer">
           <p class="taskDate">{{ chosenTask.startDate }}</p>
           <span class="taskSeparator">---</span>
           <p class="taskDate">{{ chosenTask.endDate }}</p>
@@ -110,14 +111,24 @@
               :filename="file.name"
               :href="file.href"/>
         </div>
-        <div v-if="chosenTask.options" class="buttonsContainer">
+        <div v-if="chosenTask.comment">
+          <h3>Комментарий преподавателя</h3>
+          <p>{{chosenTask.comment}}</p>
+        </div>
+        <div v-if="chosenTask.options && chosenTask.options.length > 1" class="buttonsContainer">
           <Button
+            v-for="(option, index) in chosenTask.options"
             @click="setTaskStatus(chosenTask.id, option)"
             v-bind="option"
-            v-for="(option, index) in chosenTask.options"
-            :key="index"
+            :key="index + 'button'"
           />
         </div>
+        <Button
+            v-else-if="chosenTask.options"
+            class="Button"
+            @click="setTaskStatus(chosenTask.id, chosenTask.options[0])"
+            v-bind="chosenTask.options[0]"
+        />
       </div>
     </Modal>
   </div>
@@ -130,7 +141,6 @@ import Modal from "../../components/modal";
 import Button from "../../components/customButton";
 import defaultUserIcon from "@/assets/default_user_icon.png";
 import DownloadFile from '../../components/downloadFile'
-import {changeTaskStatus} from "@/constants.ts";
 
 export default {
   name: "Board",
@@ -147,7 +157,6 @@ export default {
       defaultUserIcon,
       chosenTask: {},
       taskModalOpened: false,
-      loadedFiles: [],
       formData: new FormData()
     };
   },
@@ -155,31 +164,26 @@ export default {
   computed: {
     ...mapGetters(["getAuth", "studentTasks"]),
   },
-  mounted() {
-    this.fetchTasks();
+  async mounted() {
+    await this.fetchTasks();
   },
   methods: {
-    ...mapActions(["fetchTasks", "uploadFile"]),
+    ...mapActions(["fetchTasks", "uploadFile", "updateTaskStatus"]),
     choseTask(index) {
       this.chosenTask = this.studentTasks[index];
-      this.loadedFile = [];
       this.toggleModal();
     },
     toggleModal() {
       this.taskModalOpened = !this.taskModalOpened;
     },
-    setTaskStatus(id, status) {
-      const postData = {id: id, status: status, loadedFiles: this.loadedFiles}
-
-      fetch(changeTaskStatus, {
-        method: 'POST',
-        body: postData
-      })
+    async setTaskStatus(id, status) {
+      await this.updateTaskStatus({answerId: id, status: status.action});
+      await this.fetchTasks();
       this.toggleModal();
     },
     async loadFile(event) {
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i}`, event.target.files[i]);
+        this.formData.append(`file-${i+1}`, event.target.files[i]);
       }
       await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
       this.formData = new FormData();
@@ -239,12 +243,17 @@ export default {
   justify-content: space-between;
 }
 
+.Button {
+  margin-top: 20px;
+}
+
 .taskTitle,
 .taskSubtitle {
   margin: 0 0 10px 0;
 }
 
-.taskDate {
+.taskDateContainer {
+  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -278,5 +287,19 @@ export default {
 .downloadFile {
   display: inline-block;
   margin: 16px 0;
+}
+
+.studentAvatarContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.studentAvatar {
+  height: 100px;
+  width: 100px;
+  max-width: 100px;
+  max-height: 100px;
 }
 </style>

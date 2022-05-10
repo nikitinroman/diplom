@@ -93,7 +93,7 @@ export default {
       this.toggleModal();
     },
     async fetchGroupData() {
-      const response = await requestWrapper({additionUrl: GROUP_INFO_URL, userID: this.userId, token: this.token, method: "GET", getParam: this.groupId});
+      const response = await requestWrapper({additionUrl: GROUP_INFO_URL, userID: this.userId, token: this.token, method: "GET", getParam: `groupId=${this.groupId}`});
       this.faculty = response.group?.faculty;
       this.direction = response.group?.direction;
       this.groupName = response.group?.groupName;
@@ -217,6 +217,8 @@ export default {
 .studentAvatar {
   height: 100px;
   width: 100px;
+  max-width: 100px;
+  max-height: 100px;
 }
 
 .studentName {

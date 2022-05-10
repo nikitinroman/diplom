@@ -98,9 +98,10 @@ export default {
 }
 
 .closeButton {
-  position: absolute;
-  top: 30px;
-  right: 20px;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  position: sticky;
   cursor: pointer;
 }
 

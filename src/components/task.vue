@@ -1,5 +1,5 @@
 <template>
-  <div v-if="column === status" @click="$emit('click')" class="task">
+  <div v-if="column === status || !column" @click="$emit('click')" class="task">
     <p class="taskTitle">{{ title }}</p>
     <p class="taskSubtitle">{{ subtitle }}</p>
     <div class="taskDate">

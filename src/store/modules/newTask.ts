@@ -1,5 +1,5 @@
 // @ts-ignore
-import { NEW_FILE_TO_TASK, NEW_TASK_URL, } from "../../requestHelpers/endpoints.ts";
+import { NEW_FILE_TO_TASK_URL, NEW_TASK_URL, } from "../../requestHelpers/endpoints.ts";
 import { requestWrapper } from "../../requestHelpers/requestHelper.js";
 
 export default {
@@ -18,7 +18,7 @@ export default {
     },
     async uploadFile(_,payload) {
       await requestWrapper({
-        additionUrl: NEW_FILE_TO_TASK,
+        additionUrl: NEW_FILE_TO_TASK_URL,
         userID: this.state.auth.userId,
         token: this.state.auth.token,
         getParam: payload.taskId,
