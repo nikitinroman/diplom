@@ -89,10 +89,12 @@
             </div>
           </div>
         </div>
-        <h3 class="taskStatus">Статус выполнения задания</h3>
-        <h2 v-if="chosenTask.status" class="taskStatus">
-          {{ chosenTask.status }}
-        </h2>
+        <div v-if="chosenTask.status">
+          <h3 class="taskStatus">Статус выполнения задания</h3>
+          <h2 class="taskStatus">
+            {{ chosenTask.status }}
+          </h2>
+        </div>
         <div v-if="chosenTask.title">
           <h3 class="taskTitle" >Задание</h3>
           <p class="taskTitle">{{ chosenTask.title }}</p>
