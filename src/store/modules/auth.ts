@@ -121,6 +121,8 @@ export default {
     logout({ commit }) {
       commit("setAuth", false);
       commit("setEditableModeStatus", false);
+      localStorage.setItem('userId', '');
+      localStorage.setItem('token', '');
     },
     async authByToken({ commit }, payload) {
       let response;
@@ -134,15 +136,16 @@ export default {
       } catch (err) {
         alert(`Упс, что-то пошло не так! Ошибка авторизации: ${err}`);
       }
-      if (response) {
+      if (response.error) {
+        alert(`Упс, что-то пошло не так! Ошибка авторизации: ${response.error}`);
+      } else if (response) {
+        const userInfo = {...response.user, id: payload.userId};
         commit("setEditableModeStatus", !response.user.isStudent);
         commit("setGroups", response.groups);
         commit("setSubjects", response.subjects);
-        commit("setToken", response.token);
-        commit("setUserInfo", response.user);
+        commit("setToken", payload.token);
+        commit("setUserInfo", userInfo);
         commit("setAuth", true);
-        localStorage.setItem('userId', response.user.id);
-        localStorage.setItem('token', response.token);
         return true;
       }
       return false

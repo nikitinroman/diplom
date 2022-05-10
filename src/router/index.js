@@ -42,7 +42,11 @@ async function checkStorage() {
 router.beforeEach(async (to, from, next) => {
   if (!store.getters.getAuth && to.name !== "auth") {
     const authorized = await checkStorage();
-    !authorized && next({name: "auth"});
+    if (!authorized) {
+      next({name: "auth"});
+    } else {
+      next();
+    }
   } else {
     if (
         editableModeRoutesOnly.includes(to.name) &&
