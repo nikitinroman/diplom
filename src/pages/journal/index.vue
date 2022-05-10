@@ -29,18 +29,33 @@
         <span>{{ item.text || item.status }}</span>
       </div>
     </div>
-    <Modal @close="toggleModal" v-if="modalIsOpened">
+    <Modal @close="toggleModal" v-if="modalIsOpened" :overflow="true">
       <div class="modalContent">
         <h2 v-if="chosenTask.status" class="taskStatus">
           {{ chosenTask.status }}
         </h2>
-        <p v-if="chosenTask.title" class="taskTitle">{{ chosenTask.title }}</p>
-        <p v-if="chosenTask.subtitle" class="taskSubtitle">
-          {{ chosenTask.subtitle }}
-        </p>
-        <p v-if="chosenTask.description" class="taskDescription">
-          {{ chosenTask.description }}
-        </p>
+        <div v-if="chosenTask.title">
+          <h3 class="taskTitle" >Задание</h3>
+          <p class="taskTitle">{{ chosenTask.title }}</p>
+        </div>
+        <div v-if="chosenTask.subtitle">
+          <h3 class="taskSubtitle">Тема задания</h3>
+          <p class="taskSubtitle">
+            {{ chosenTask.subtitle }}
+          </p>
+        </div>
+        <div v-if="chosenTask.description">
+          <h3 class="taskDescription">Описание задания</h3>
+          <p class="taskDescription">
+            {{ chosenTask.description }}
+          </p>
+        </div>
+        <div v-if="chosenTask.comment">
+          <h3 class="taskComment">Комментарий преподавателя</h3>
+          <p class="taskComment">
+            {{ chosenTask.comment }}
+          </p>
+        </div>
         <div v-if="chosenTask.person">
           <div class="studentAvatarContainer">
             <img
@@ -49,8 +64,8 @@
                 alt="student_image"
             />
           </div>
-          <p>{{ chosenTask.person.name }}</p>
-          <p>{{ chosenTask.person.position }}</p>
+          <h3 class="personName">{{ chosenTask.person.name }}</h3>
+          <p class="personPosition">{{ chosenTask.person.position }}</p>
           <div class="personContacts">
             <div class="personContactsContent">
               <p class="personContactsText">Почта</p>
@@ -84,7 +99,8 @@
               :filename="file.name"
               :href="file.href"/>
         </div>
-        <div v-if="chosenTask.options" :class="{buttonsContainer: true, centering: chosenTask.options.length === 1}">
+        <div v-if="chosenTask.options &&
+        chosenTask.options.length > 1" class="buttonsContainer">
           <Button
               @click="setTaskStatus(chosenTask.id, option)"
               v-bind="option"
@@ -92,6 +108,12 @@
               :key="index + option.text"
           />
         </div>
+        <Button
+            v-else-if="chosenTask.options"
+            class="Button"
+            @click="setTaskStatus(chosenTask.id, chosenTask.options[0])"
+            v-bind="chosenTask.options[0]"
+        />
       </div>
     </Modal>
     <Modal @close="toggleEditModal" v-if="editableModalIsOpened" :overflow="true">
@@ -100,13 +122,28 @@
         <h2 v-if="chosenTask.status" class="taskStatus">
           {{ chosenTask.status }}
         </h2>
-        <p v-if="chosenTask.title" class="taskTitle">{{ chosenTask.title }}</p>
-        <p v-if="chosenTask.subtitle" class="taskSubtitle">
-          {{ chosenTask.subtitle }}
-        </p>
-        <p v-if="chosenTask.description" class="taskDescription">
-          {{ chosenTask.description }}
-        </p>
+        <div v-if="chosenTask.title">
+          <h3 class="taskTitle" >Задание</h3>
+          <p class="taskTitle">{{ chosenTask.title }}</p>
+        </div>
+        <div v-if="chosenTask.subtitle">
+          <h3 class="taskSubtitle">Тема задания</h3>
+          <p class="taskSubtitle">
+            {{ chosenTask.subtitle }}
+          </p>
+        </div>
+        <div v-if="chosenTask.description">
+          <h3 class="taskDescription">Описание задания</h3>
+          <p class="taskDescription">
+            {{ chosenTask.description }}
+          </p>
+        </div>
+        <div v-if="chosenTask.comment">
+          <h3 class="taskComment">Комментарий преподавателя</h3>
+          <p class="taskComment">
+            {{ chosenTask.comment }}
+          </p>
+        </div>
         <textarea rows="5" class="Textarea" v-model="inputMarkMessage" placeholder="Введите комментарий к оценке"/>
         <div class="SelectContainer">
           <p>Выберите оценку из списка</p>
@@ -132,7 +169,7 @@
         </div>
         <div>
           <h2>Прикрепить файлы к заданию</h2>
-          <input type="file" @change="loadFile" multiple>
+          <input ref="input" type="file" @change="loadFile" multiple>
         </div>
         <Button
             class="Button"
@@ -185,7 +222,7 @@ export default {
     return {
       modalIsOpened: false,
       editableModalIsOpened: false,
-      inputMarkMessage: '',
+      inputMarkMessage: 'Молодец!',
       inputMark: 5,
       chosenTask: {},
       chosenSubject: 0,
@@ -213,7 +250,7 @@ export default {
       if (item.data && !this.editableMode) {
         this.toggleModal();
       }
-      if (this.editableMode && item.data && this.chosenTask.editable) {
+      if (this.editableMode && item.data) {
         this.toggleEditModal();
       }
     },
@@ -230,11 +267,13 @@ export default {
     async setTaskStatus(id, status) {
       await this.updateTaskStatus({answerId: id, status: status.action});
       this.toggleModal();
+      this.clearFields();
       await this.reloadTable();
     },
     clearFields() {
-      this.inputMarkMessage = ''
-      this.inputMark = 5
+      this.inputMarkMessage = 'Молодец!';
+      this.inputMark = 5;
+      this.$refs.input.value = '';
     },
     async sendTaskMark(id) {
       await this.setTaskMark({
@@ -243,7 +282,6 @@ export default {
         mark: this.inputMark
       });
       await this.reloadTable();
-
       this.toggleEditModal();
       this.clearFields();
     },
@@ -413,5 +451,14 @@ export default {
   width: 100px;
   max-width: 100px;
   max-height: 100px;
+}
+
+.taskTitle,
+.taskSubtitle,
+.taskDescription,
+.taskComment,
+.personName,
+.personPosition {
+  margin: 0 0 10px 0;
 }
 </style>

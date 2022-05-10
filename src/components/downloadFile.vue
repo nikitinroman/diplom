@@ -14,23 +14,22 @@ export default {
     },
     filename: {
       type: String,
-      default: 'file'
+      default: 'file.txt'
     }
   },
   methods: {
     async downloadFile() {
-      fetch(this.href, {
+      const file = await fetch(this.href, {
         method: 'GET',
-        mode: 'no-cors',
-      }).then(response => response.blob()).then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = this.filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
       })
+      const blobFile = await file.blob()
+      const url = window.URL.createObjectURL(blobFile);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = this.filename + '.' + this.href.split('.')[1];
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     },
   }
 }

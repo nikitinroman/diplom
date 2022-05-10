@@ -1,5 +1,6 @@
 // @ts-ignore
-import { AUTH_URL, BASE_URL } from "../../requestHelpers/endpoints.ts";
+import { AUTH_URL, BASE_URL, AUTH_BY_TOKEN_URL } from "../../requestHelpers/endpoints.ts";
+import { requestWrapper } from "../../requestHelpers/requestHelper.js";
 import router from "../../router";
 
 export default {
@@ -100,11 +101,11 @@ export default {
           return response.json();
         });
       } catch (err) {
-        alert(`Упс, что-то пошло не так! Ошибка: ${err}`);
+        alert(`Упс, что-то пошло не так! Ошибка авторизации: ${err}`);
       }
 
       if (response.error) {
-        alert(`Упс, что-то пошло не так! Ошибка: ${response.error}`);
+        alert(`Упс, что-то пошло не так! Ошибка авторизации: ${response.error}`);
       } else if (response) {
         commit("setEditableModeStatus", !response.user.isStudent);
         commit("setGroups", response.groups);
@@ -112,6 +113,8 @@ export default {
         commit("setToken", response.token);
         commit("setUserInfo", response.user);
         commit("setAuth", true);
+        localStorage.setItem('userId', response.user.id);
+        localStorage.setItem('token', response.token);
         router.push({ name: "home" });
       }
     },
@@ -119,5 +122,30 @@ export default {
       commit("setAuth", false);
       commit("setEditableModeStatus", false);
     },
+    async authByToken({ commit }, payload) {
+      let response;
+      try {
+        response = await requestWrapper({
+          additionUrl: AUTH_BY_TOKEN_URL,
+          userID: payload.userId,
+          token: payload.token,
+          method: "GET",
+        });
+      } catch (err) {
+        alert(`Упс, что-то пошло не так! Ошибка авторизации: ${err}`);
+      }
+      if (response) {
+        commit("setEditableModeStatus", !response.user.isStudent);
+        commit("setGroups", response.groups);
+        commit("setSubjects", response.subjects);
+        commit("setToken", response.token);
+        commit("setUserInfo", response.user);
+        commit("setAuth", true);
+        localStorage.setItem('userId', response.user.id);
+        localStorage.setItem('token', response.token);
+        return true;
+      }
+      return false
+    }
   },
 };

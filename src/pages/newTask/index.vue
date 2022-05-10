@@ -21,7 +21,7 @@
     <textarea rows="10" class="Textarea" v-model="taskDescription" placeholder="Введите полное описание задания"/>
     <div>
       <h2>Прикрепить файлы к заданию</h2>
-      <input type="file" @change="loadFile" multiple>
+      <input type="file" ref="input" @change="loadFile" multiple>
     </div>
     <div class="endDateContainer">
       <p>Дедлайн:</p>
@@ -116,6 +116,7 @@ export default {
       this.taskEndDateChanged = false;
       this.formData = new FormData();
       this.filesAdded = false;
+      this.$refs.input.value = '';
     },
     async addNewTask() {
       const body = {

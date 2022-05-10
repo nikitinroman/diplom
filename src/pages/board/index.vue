@@ -68,8 +68,8 @@
               alt="student_image"
             />
           </div>
-          <p>{{ chosenTask.person.name }}</p>
-          <p>{{ chosenTask.person.position }}</p>
+          <h3 class="personName">{{ chosenTask.person.name }}</h3>
+          <p class="personPosition">{{ chosenTask.person.position }}</p>
           <div class="personContacts">
             <div class="personContactsContent">
               <p class="personContactsText">Почта</p>
@@ -89,18 +89,40 @@
             </div>
           </div>
         </div>
-        <h2 class="taskStatus">{{ chosenTask.status }}</h2>
-        <p class="taskTitle">{{ chosenTask.title }}</p>
-        <p class="taskSubtitle">{{ chosenTask.subtitle }}</p>
-        <p class="taskDescription">{{ chosenTask.description }}</p>
+        <h3 class="taskStatus">Статус выполнения задания</h3>
+        <h2 v-if="chosenTask.status" class="taskStatus">
+          {{ chosenTask.status }}
+        </h2>
+        <div v-if="chosenTask.title">
+          <h3 class="taskTitle" >Задание</h3>
+          <p class="taskTitle">{{ chosenTask.title }}</p>
+        </div>
+        <div v-if="chosenTask.subtitle">
+          <h3 class="taskSubtitle">Тема задания</h3>
+          <p class="taskSubtitle">
+            {{ chosenTask.subtitle }}
+          </p>
+        </div>
+        <div v-if="chosenTask.description">
+          <h3 class="taskDescription">Описание задания</h3>
+          <p class="taskDescription">
+            {{ chosenTask.description }}
+          </p>
+        </div>
+        <div v-if="chosenTask.comment">
+          <h3 class="taskComment">Комментарий преподавателя</h3>
+          <p class="taskComment">
+            {{ chosenTask.comment }}
+          </p>
+        </div>
         <div class="taskDateContainer">
           <p class="taskDate">{{ chosenTask.startDate }}</p>
           <span class="taskSeparator">---</span>
           <p class="taskDate">{{ chosenTask.endDate }}</p>
         </div>
-        <div v-if="chosenTask.canLoadFile">
+        <div v-if="!chosenTask.canLoadFile">
           <h3>Прикрепить файлы к заданию</h3>
-          <input class="loadFile" type="file" @change="loadFile" multiple>
+          <input class="loadFile" ref="input" type="file" @change="loadFile" multiple>
         </div>
         <div
             v-if="chosenTask.files">
@@ -175,6 +197,9 @@ export default {
     },
     toggleModal() {
       this.taskModalOpened = !this.taskModalOpened;
+      if (!this.taskModalOpened) {
+        this.$refs.input.value = '';
+      }
     },
     async setTaskStatus(id, status) {
       await this.updateTaskStatus({answerId: id, status: status.action});
@@ -248,7 +273,11 @@ export default {
 }
 
 .taskTitle,
-.taskSubtitle {
+.taskSubtitle,
+.taskDescription,
+.taskComment,
+.personName,
+.personPosition {
   margin: 0 0 10px 0;
 }
 
@@ -270,6 +299,7 @@ export default {
 .personContacts {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .personContactsContent {
@@ -280,7 +310,7 @@ export default {
 
 .personContactsText {
   display: inline-block;
-  margin: 20px 0 0 0;
+  margin: 10px 0 0 0;
 }
 
 .loadFile,
@@ -301,5 +331,9 @@ export default {
   width: 100px;
   max-width: 100px;
   max-height: 100px;
+}
+
+.taskStatus {
+  margin: 0 0 15px 0;
 }
 </style>

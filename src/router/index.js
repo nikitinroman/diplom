@@ -33,20 +33,27 @@ const router = new VueRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+async function checkStorage() {
+  let token = localStorage.getItem('token');
+  let userId = localStorage.getItem('userId');
+  return await store.dispatch('authByToken', {token: token, userId: userId});
+}
+
+router.beforeEach(async (to, from, next) => {
   if (!store.getters.getAuth && to.name !== "auth") {
-    next({ name: "auth" });
+    const authorized = await checkStorage();
+    !authorized && next({name: "auth"});
   } else {
     if (
-      editableModeRoutesOnly.includes(to.name) &&
-      !store.getters.editableMode
+        editableModeRoutesOnly.includes(to.name) &&
+        !store.getters.editableMode
     ) {
-      next({ name: "board" });
+      next({name: "board"});
     } else if (
-      studentModeRoutesOnly.includes(to.name) &&
-      store.getters.editableMode
+        studentModeRoutesOnly.includes(to.name) &&
+        store.getters.editableMode
     ) {
-      next({ name: "myReview" });
+      next({name: "myReview"});
     } else {
       next();
     }
