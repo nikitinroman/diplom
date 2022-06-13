@@ -79,7 +79,12 @@ export default {
     Button,
   },
   computed: {
-    ...mapGetters(['token', 'userId', 'groupId']),
+    ...mapGetters(['token', 'userId', 'groupId', 'editableMode']),
+  },
+  created() {
+    if(this.editableMode) {
+      this.$router.push('myReview');
+    }
   },
   mounted() {
     this.fetchGroupData();

@@ -211,7 +211,7 @@ import DownloadFile from '../../components/downloadFile'
 import {mapActions, mapGetters} from "vuex";
 
 export default {
-  name: "index",
+  name: "Journal",
   components: {
     Modal,
     Button,
@@ -241,14 +241,14 @@ export default {
     await this.reloadTable();
   },
   methods: {
-    ...mapActions(['uploadFile', 'fetchGroupSubjectJournalTable', 'setTaskMark', 'updateTaskStatus']),
+    ...mapActions(['uploadFile', 'fetchGroupSubjectJournalTable', 'setTaskMark', 'updateTaskStatus', 'fetchStudentSubjectJournalTable']),
     async reloadTable() {
       if (this.editableMode) {
         const groupId = this.chosenGroup || this.groups[0].id;
         const subjectId = this.chosenSubject || this.subjects[0].id
         await this.fetchGroupSubjectJournalTable(`groupId=${groupId}&subjectId=${subjectId}`);
       } else {
-        // this.fetchGroupSubjectJournalTable(`groupId=${this.groups[0].id}&subjectId=${this.subjects[0].id}`);
+        await this.fetchStudentSubjectJournalTable();
       }
     },
     openModal(item) {
@@ -333,11 +333,12 @@ export default {
 }
 
 .firstCell {
-  position: fixed;
+  position: sticky;
   background-color: #cccccc;
   min-width: 200px;
   width: 200px;
   justify-content: flex-start;
+  left: 0;
 }
 
 .pointer {

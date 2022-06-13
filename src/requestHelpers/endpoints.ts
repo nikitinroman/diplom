@@ -7,5 +7,6 @@ export const NEW_FILE_TO_TASK_URL = "task/file/";
 export const BOARD_URL = "board";
 export const UPDATE_TASK_STATUS_URL = "task/status";
 export const JOURNAL_URL = "task/journal?";
+export const STUDENT_JOURNAL_URL = "task/diary";
 export const SET_TASK_MARK_URL = "task/mark";
 export const TASKS_FOR_REVIEW_URL = "task/review?"

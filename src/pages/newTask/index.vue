@@ -29,7 +29,7 @@
              v-model="taskEndDate"
              max="2022-12-31">
     </div>
-    <CustomButton text="Создать" :disabled="disabledButton" @click="createTask"/>
+    <CustomButton text="Создать" :disabled="disabledButton" @click="addNewTask"/>
   </div>
 </template>
 
@@ -105,9 +105,6 @@ export default {
     changeGroup(val) {
       this.chosenGroupId = val;
     },
-    createTask() {
-      this.addNewTask();
-    },
     clearFields() {
       this.taskTitle = "";
       this.taskSubtitle = "";
@@ -128,6 +125,10 @@ export default {
         taskEndDate: this.taskEndDate
       }
       const response = await this.postNewTask(body)
+      if (response.error) {
+        alert(response.error);
+        return
+      }
       await this.addFileToTask(response.taskId);
       this.clearFields();
     },

@@ -1,5 +1,5 @@
 // @ts-ignore
-import { JOURNAL_URL, SET_TASK_MARK_URL } from "../../requestHelpers/endpoints.ts";
+import { JOURNAL_URL, SET_TASK_MARK_URL, STUDENT_JOURNAL_URL } from "../../requestHelpers/endpoints.ts";
 import { requestWrapper } from "../../requestHelpers/requestHelper.js";
 
 export default {
@@ -9,6 +9,7 @@ export default {
   mutations: {
     setJournalTable(state, payload) {
       state.table = payload;
+      console.log('table', payload);
     },
   },
   getters: {
@@ -23,6 +24,15 @@ export default {
         userID: this.state.auth.userId,
         token: this.state.auth.token,
         getParam: getParam,
+        method: "GET",
+      });
+      commit("setJournalTable", response.table);
+    },
+    async fetchStudentSubjectJournalTable({ commit }) {
+      const response = await requestWrapper({
+        additionUrl: STUDENT_JOURNAL_URL,
+        userID: this.state.auth.userId,
+        token: this.state.auth.token,
         method: "GET",
       });
       commit("setJournalTable", response.table);
