@@ -30,9 +30,9 @@ export default {
     },
     setUserInfo(state, payload) {
       state.userId = payload.id;
-      state.firstName = payload.firstName;
-      state.middleName = payload.middleName;
-      state.lastName = payload.lastName;
+      state.firstName = payload.firstName || '';
+      state.middleName = payload.middleName || '';
+      state.lastName = payload.lastName || '';
       state.email = payload.email;
       state.phone = payload.phone;
       state.groupId = payload.groupId;
