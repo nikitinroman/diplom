@@ -105,13 +105,13 @@
           <p>Выберите оценку из списка</p>
           <select class="Select" v-model="inputMark" name="marks" id="marks">
             <optgroup label="Положительные оценки">
-              <option :value=5>Отлично</option>
-              <option :value=4>Хорошо</option>
-              <option :value=3>Удовлетворительно</option>
+              <option :value=5>5</option>
+              <option :value=4>4</option>
+              <option :value=3>3</option>
             </optgroup>
             <optgroup label="Негативные оценки">
-              <option :value=2>Неудовлетворительно</option>
-              <option :value=1>Не выполнено</option>
+              <option :value=2>2</option>
+              <option :value=1>1</option>
             </optgroup>
           </select>
         </div>
