@@ -12,10 +12,11 @@
 
 <script>
 import CustomButton from '../../components/customButton'
-import { mapGetters, mapActions } from "vuex";
+import {mapGetters, mapActions} from "vuex";
+
 export default {
   name: "Auth",
-  components:{
+  components: {
     CustomButton
   },
   data() {
@@ -36,7 +37,7 @@ export default {
     ...mapActions(['fetchAuth', 'logout']),
     async auth() {
       if (!this.getAuth) {
-        await this.fetchAuth({ email: this.email, password: this.password });
+        await this.fetchAuth({email: this.email, password: this.password});
       }
     }
   }

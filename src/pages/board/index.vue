@@ -7,11 +7,11 @@
         </div>
         <div class="rowContent">
           <Task
-            @click="choseTask(index)"
-            v-bind="task"
-            v-for="(task, index) in studentTasks"
-            :key="index + 'to_do'"
-            column="to_do"
+              @click="choseTask(index)"
+              v-bind="task"
+              v-for="(task, index) in studentTasks"
+              :key="index + 'to_do'"
+              column="to_do"
           />
         </div>
       </div>
@@ -21,11 +21,11 @@
         </div>
         <div class="rowContent">
           <Task
-            @click="choseTask(index)"
-            v-bind="task"
-            v-for="(task, index) in studentTasks"
-            :key="index + 'in_progress'"
-            column="in_progress"
+              @click="choseTask(index)"
+              v-bind="task"
+              v-for="(task, index) in studentTasks"
+              :key="index + 'in_progress'"
+              column="in_progress"
           />
         </div>
       </div>
@@ -35,11 +35,11 @@
         </div>
         <div class="rowContent">
           <Task
-            @click="choseTask(index)"
-            v-bind="task"
-            v-for="(task, index) in studentTasks"
-            :key="index + 'in_review'"
-            column="in_review"
+              @click="choseTask(index)"
+              v-bind="task"
+              v-for="(task, index) in studentTasks"
+              :key="index + 'in_review'"
+              column="in_review"
           />
         </div>
       </div>
@@ -49,11 +49,11 @@
         </div>
         <div class="rowContent">
           <Task
-            @click="choseTask(index)"
-            v-bind="task"
-            v-for="(task, index) in studentTasks"
-            :key="index + 'done'"
-            column="done"
+              @click="choseTask(index)"
+              v-bind="task"
+              v-for="(task, index) in studentTasks"
+              :key="index + 'done'"
+              column="done"
           />
         </div>
       </div>
@@ -63,9 +63,9 @@
         <div v-if="chosenTask.person">
           <div class="studentAvatarContainer">
             <img
-              class="studentAvatar"
-              :src="chosenTask.person.image || defaultUserIcon"
-              alt="student_image"
+                class="studentAvatar"
+                :src="chosenTask.person.image || defaultUserIcon"
+                alt="student_image"
             />
           </div>
           <h3 class="personName">{{ chosenTask.person.name }}</h3>
@@ -77,14 +77,14 @@
             </div>
             <div class="personContactsContent">
               <a
-                class="personContactsText"
-                :href="`mailto:${chosenTask.person.email}`"
-                >{{ chosenTask.person.email }}</a
+                  class="personContactsText"
+                  :href="`mailto:${chosenTask.person.email}`"
+              >{{ chosenTask.person.email }}</a
               >
               <a
-                class="personContactsText"
-                :href="`tel:+${chosenTask.person.tel}`"
-                >Позвонить {{ chosenTask.person.tel }}</a
+                  class="personContactsText"
+                  :href="`tel:+${chosenTask.person.tel}`"
+              >Позвонить {{ chosenTask.person.tel }}</a
               >
             </div>
           </div>
@@ -97,7 +97,7 @@
           </h2>
         </div>
         <div v-if="chosenTask.title">
-          <h3 class="taskTitle" >Задание</h3>
+          <h3 class="taskTitle">Задание</h3>
           <p class="taskTitle">{{ chosenTask.title }}</p>
         </div>
         <div v-if="chosenTask.subtitle">
@@ -138,14 +138,14 @@
         </div>
         <div v-if="chosenTask.comment">
           <h3>Комментарий преподавателя</h3>
-          <p>{{chosenTask.comment}}</p>
+          <p>{{ chosenTask.comment }}</p>
         </div>
         <div v-if="chosenTask.options && chosenTask.options.length > 1" class="buttonsContainer">
           <Button
-            v-for="(option, index) in chosenTask.options"
-            @click="setTaskStatus(chosenTask.id, option)"
-            v-bind="option"
-            :key="index + 'button'"
+              v-for="(option, index) in chosenTask.options"
+              @click="setTaskStatus(chosenTask.id, option)"
+              v-bind="option"
+              :key="index + 'button'"
           />
         </div>
         <Button
@@ -160,7 +160,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import {mapGetters, mapActions} from "vuex";
 import Task from "../../components/task";
 import Modal from "../../components/modal";
 import Button from "../../components/customButton";
@@ -211,7 +211,7 @@ export default {
     },
     async loadFile(event) {
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i+1}`, event.target.files[i]);
+        this.formData.append(`file-${i + 1}`, event.target.files[i]);
       }
       await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
       this.formData = new FormData();

@@ -9,7 +9,6 @@ export default {
   mutations: {
     setJournalTable(state, payload) {
       state.table = payload;
-      console.log('table', payload);
     },
   },
   getters: {

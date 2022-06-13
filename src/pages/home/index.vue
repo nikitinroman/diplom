@@ -1,5 +1,6 @@
 <template>
   <div class="defaultContainer">
+    <h2 class="heading">{{ firstName + " " + middleName + " " + lastName }}</h2>
     <h2 class="heading">{{ groupName }}</h2>
     <div class="groupInfo">
       <div class="groupPoints">
@@ -16,15 +17,15 @@
     <h2 class="heading">Одногруппники</h2>
     <div class="groupStudents">
       <div
-        @click="showStudentInfo(index)"
-        v-for="(student, index) in students"
-        :key="index"
-        class="studentCard"
+          @click="showStudentInfo(index)"
+          v-for="(student, index) in students"
+          :key="index"
+          class="studentCard"
       >
         <img
-          class="studentImage"
-          :src="student.imageLink || defaultUserIcon"
-          alt="student_image"
+            class="studentImage"
+            :src="student.imageLink || defaultUserIcon"
+            alt="student_image"
         />
         <p class="studentName">{{ student.name }}</p>
       </div>
@@ -33,9 +34,9 @@
       <div class="modal">
         <div class="studentAvatarContainer">
           <img
-            class="studentAvatar"
-            :src="chosenStudent.imageLink || defaultUserIcon"
-            alt="student_image"
+              class="studentAvatar"
+              :src="chosenStudent.imageLink || defaultUserIcon"
+              alt="student_image"
           />
         </div>
         <h2 class="studentNameInModal">{{ chosenStudent.name }}</h2>
@@ -46,17 +47,17 @@
           </div>
           <div class="studentContactsContent">
             <a
-              class="studentContactsText"
-              :href="`mailto:${chosenStudent.email}`"
-              >{{ chosenStudent.email }}</a
+                class="studentContactsText"
+                :href="`mailto:${chosenStudent.email}`"
+            >{{ chosenStudent.email }}</a
             >
             <a class="studentContactsText" :href="`tel:+${chosenStudent.phone}`"
-              >Позвонить {{ chosenStudent.phone }}</a
+            >Позвонить {{ chosenStudent.phone }}</a
             >
           </div>
         </div>
         <div class="buttonContainer">
-          <Button @click="toggleModal" text="Закрыть" />
+          <Button @click="toggleModal" text="Закрыть"/>
         </div>
       </div>
     </Modal>
@@ -69,7 +70,7 @@ import Modal from "../../components/modal";
 import Button from "../../components/customButton";
 
 import {requestWrapper} from "@/requestHelpers/requestHelper.js";
-import { GROUP_INFO_URL}  from "@/requestHelpers/endpoints.ts"
+import {GROUP_INFO_URL} from "@/requestHelpers/endpoints.ts"
 import {mapGetters} from "vuex";
 
 export default {
@@ -79,10 +80,10 @@ export default {
     Button,
   },
   computed: {
-    ...mapGetters(['token', 'userId', 'groupId', 'editableMode']),
+    ...mapGetters(['token', 'userId', 'groupId', 'editableMode', 'firstName', 'middleName', 'lastName']),
   },
   created() {
-    if(this.editableMode) {
+    if (this.editableMode) {
       this.$router.push('myReview');
     }
   },
@@ -98,7 +99,13 @@ export default {
       this.toggleModal();
     },
     async fetchGroupData() {
-      const response = await requestWrapper({additionUrl: GROUP_INFO_URL, userID: this.userId, token: this.token, method: "GET", getParam: `groupId=${this.groupId}`});
+      const response = await requestWrapper({
+        additionUrl: GROUP_INFO_URL,
+        userID: this.userId,
+        token: this.token,
+        method: "GET",
+        getParam: `groupId=${this.groupId}`
+      });
       this.faculty = response.group?.faculty;
       this.direction = response.group?.direction;
       this.groupName = response.group?.groupName;

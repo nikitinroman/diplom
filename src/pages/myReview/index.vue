@@ -8,15 +8,15 @@
           <p class="selectorTitle">Предмет</p>
         </div>
         <div class="selectorsContainer">
-          <Selector @change="changeGroup" :options="groups" />
-          <Selector @change="changeSubject" :options="subjects" />
+          <Selector @change="changeGroup" :options="groups"/>
+          <Selector @change="changeSubject" :options="subjects"/>
         </div>
       </div>
       <CustomButton
-        class="button"
-        @click="onChoose"
-        text="Выбрать"
-        :disabled="disabledButton"
+          class="button"
+          @click="onChoose"
+          text="Выбрать"
+          :disabled="disabledButton"
       />
     </div>
     <div class="allTasks">
@@ -35,9 +35,9 @@
         <div v-if="chosenTask.person">
           <div class="studentAvatarContainer">
             <img
-              class="studentAvatar"
-              :src="chosenTask.person.image || defaultUserIcon"
-              alt="student_image"
+                class="studentAvatar"
+                :src="chosenTask.person.image || defaultUserIcon"
+                alt="student_image"
             />
           </div>
           <h3 class="personName">{{ chosenTask.person.name }}</h3>
@@ -49,14 +49,14 @@
             </div>
             <div class="personContactsContent">
               <a
-                class="personContactsText"
-                :href="`mailto:${chosenTask.person.email}`"
-                >{{ chosenTask.person.email }}</a
+                  class="personContactsText"
+                  :href="`mailto:${chosenTask.person.email}`"
+              >{{ chosenTask.person.email }}</a
               >
               <a
-                class="personContactsText"
-                :href="`tel:+${chosenTask.person.tel}`"
-                >Позвонить {{ chosenTask.person.tel }}</a
+                  class="personContactsText"
+                  :href="`tel:+${chosenTask.person.tel}`"
+              >Позвонить {{ chosenTask.person.tel }}</a
               >
             </div>
           </div>
@@ -68,7 +68,7 @@
           </h2>
         </div>
         <div v-if="chosenTask.title">
-          <h3 class="taskTitle" >Задание</h3>
+          <h3 class="taskTitle">Задание</h3>
           <p class="taskTitle">{{ chosenTask.title }}</p>
         </div>
         <div v-if="chosenTask.subtitle">
@@ -96,24 +96,14 @@
         </div>
         <h1>Выставление оценки</h1>
         <textarea
-          rows="5"
-          class="Textarea"
-          v-model="inputMarkMessage"
-          placeholder="Введите комментарий к оценке"
+            rows="5"
+            class="Textarea"
+            v-model="inputMarkMessage"
+            placeholder="Введите комментарий к оценке"
         />
         <div class="SelectContainer">
-          <p>Выберите оценку из списка</p>
-          <select class="Select" v-model="inputMark" name="marks" id="marks">
-            <optgroup label="Положительные оценки">
-              <option :value=5>5</option>
-              <option :value=4>4</option>
-              <option :value=3>3</option>
-            </optgroup>
-            <optgroup label="Негативные оценки">
-              <option :value=2>2</option>
-              <option :value=1>1</option>
-            </optgroup>
-          </select>
+          <p class="selectMarkText">Оцените задание</p>
+          <input type="number" v-model="inputMark">
         </div>
         <div
             v-if="chosenTask.files">
@@ -129,9 +119,9 @@
           <input type="file" ref="input" @change="loadFile" multiple>
         </div>
         <CustomButton
-          class="Button"
-          @click="sendTaskMark(chosenTask.id)"
-          :text="'Поставить оценку'"
+            class="Button"
+            @click="sendTaskMark(chosenTask.id)"
+            :text="'Поставить оценку'"
         />
         <CustomButton
             class="Button"
@@ -211,7 +201,7 @@ export default {
       await this.setTaskMark({
         answerId: id,
         comment: this.inputMarkMessage,
-        mark: this.inputMark
+        mark: Number(this.inputMark)
       });
       await this.onChoose();
       this.toggleModal();
@@ -225,7 +215,7 @@ export default {
     },
     async loadFile(event) {
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i+1}`, event.target.files[i]);
+        this.formData.append(`file-${i + 1}`, event.target.files[i]);
       }
       await this.uploadFile({taskId: this.chosenTask.id, formData: this.formData});
       this.formData = new FormData();
@@ -394,5 +384,9 @@ export default {
   width: 100px;
   max-width: 100px;
   max-height: 100px;
+}
+
+.selectMarkText {
+  margin: 0 12px 0 0;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <select class="Select" v-model="inputValue" name="marks" id="marks">
-      <option v-for="(option, index) in options" :key="index + option.id" :value="option">{{ option.name }}</option>
+    <option v-for="(option, index) in options" :key="index + option.id" :value="option">{{ option.name }}</option>
   </select>
 </template>
 
@@ -29,7 +29,7 @@ export default {
     this.$emit('change', this.inputValue.id);
   },
   watch: {
-    inputValue: function(val) {
+    inputValue: function (val) {
       this.$emit('change', val.id);
     }
   }

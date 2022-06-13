@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a href="" @click.prevent="downloadFile">Скачать прикрепленный файл {{filename}}</a>
+    <a href="" @click.prevent="downloadFile">Скачать прикрепленный файл {{ filename }}</a>
   </div>
 </template>
 

@@ -22,13 +22,14 @@
       <h3 class="navbarItemText">Новое задание</h3>
     </li>
     <li class="navbarLastItem" @click="clickHandler('auth')">
-      <h3 class="navbarItemText">{{authRouteName}}</h3>
+      <h3 class="navbarItemText">{{ authRouteName }}</h3>
     </li>
   </ul>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import {mapGetters} from "vuex";
+
 export default {
   name: "navbar",
   computed: {
@@ -64,15 +65,18 @@ export default {
 .navbarItemText {
   margin: 0;
 }
+
 .navbarItem:hover {
   background-color: #F5F7FA;
 }
+
 .navbarLastItem {
   margin-left: auto;
   padding: 12px 16px;
   -webkit-transition-duration: 0.6s;
   transition-duration: 0.6s;
 }
+
 .navbarLastItem:hover {
   background-color: #F5F7FA;
 }

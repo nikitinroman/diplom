@@ -64,11 +64,11 @@ export default {
     ...mapGetters(['groups', 'subjects']),
     disabledButton() {
       return !this.chosenSubjectId ||
-             !this.chosenGroupId ||
-             !this.taskTitle ||
-             !this.taskSubtitle ||
-             !this.taskDescription ||
-             !this.isEndDateValid;
+          !this.chosenGroupId ||
+          !this.taskTitle ||
+          !this.taskSubtitle ||
+          !this.taskDescription ||
+          !this.isEndDateValid;
     },
     isEndDateValid() {
       // eslint-disable-next-line
@@ -96,7 +96,7 @@ export default {
     loadFile(event) {
       this.filesAdded = true;
       for (let i = 0; i < event.target.files.length; i++) {
-        this.formData.append(`file-${i+1}`, event.target.files[i]);
+        this.formData.append(`file-${i + 1}`, event.target.files[i]);
       }
     },
     changeSubject(val) {
