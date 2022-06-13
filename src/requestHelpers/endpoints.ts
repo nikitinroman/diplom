@@ -1,4 +1,4 @@
-export const BASE_URL = "http://194.67.112.23:1323/api/v1/";
+export const BASE_URL = "http://localhost:1323/api/v1/";
 export const AUTH_URL = "auth/token";
 export const AUTH_BY_TOKEN_URL = "user/info";
 export const GROUP_INFO_URL = "group/list?";
