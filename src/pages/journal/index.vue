@@ -21,12 +21,13 @@
     </div>
     <div class="row" v-for="(row, index) in journalTable" :key="index">
       <div
-          :class="['cell', { firstCell: item.firstCell, pointer: item.data }]"
+          :class="['cell', { firstCell: item.firstCell, pointer: item.data, burned: item.burned }]"
           v-for="(item, index) in row"
           :key="item.id + item.text + index"
           @click="openModal(item)"
       >
-        <span>{{ item.text || item.status }}</span>
+        <span v-if="!item.burned">{{ item.text || item.status }}</span>
+        <b v-else>Время истекло</b>
       </div>
     </div>
     <Modal @close="toggleModal" v-if="modalIsOpened" :overflow="true">
@@ -35,6 +36,7 @@
           <h3 class="taskStatus">Статус выполнения задания</h3>
           <h2 class="taskStatus">
             {{ chosenTask.status }}
+            <b class="titleBurned" v-if="chosenTask.burned">Время истекло</b>
           </h2>
         </div>
         <div v-if="chosenTask.title">
@@ -126,6 +128,7 @@
           <h3 class="taskStatus">Статус выполнения задания</h3>
           <h2 class="taskStatus">
             {{ chosenTask.status }}
+            <b class="titleBurned" v-if="chosenTask.burned">Время истекло</b>
           </h2>
         </div>
         <div v-if="chosenTask.title">
@@ -467,5 +470,13 @@ export default {
 .personName,
 .personPosition {
   margin: 0 0 10px 0;
+}
+
+.burned {
+  background-color: #ff7f5b;
+}
+
+.titleBurned {
+  color: #ff7f5b;
 }
 </style>
