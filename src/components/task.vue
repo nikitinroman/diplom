@@ -1,5 +1,6 @@
 <template>
-  <div v-if="column === status || !column" @click="$emit('click')" class="task">
+  <div v-if="column === status || !column" @click="$emit('click')" :class="['task', {'burned': burned}]">
+    <p v-if="burned" class="burnedText">Время истекло</p>
     <p class="taskTitle">{{ title }}</p>
     <p class="taskSubtitle">{{ subtitle }}</p>
     <div class="taskDate">
@@ -38,6 +39,10 @@ export default {
       type: String,
       default: "",
     },
+    burned: {
+      type: Boolean,
+      default: false,
+    }
   },
 };
 </script>
@@ -68,5 +73,14 @@ export default {
 
 .taskDate {
   margin: 0;
+}
+
+.burned {
+  border: 2px solid red;
+}
+
+.burnedText {
+  color: red;
+  margin: 0 0 6px 0;
 }
 </style>

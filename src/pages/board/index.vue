@@ -93,6 +93,7 @@
           <h3 class="taskStatus">Статус выполнения задания</h3>
           <h2 class="taskStatus">
             {{ chosenTask.status }}
+            <b class="titleBurned" v-if="chosenTask.burned">Время истекло</b>
           </h2>
         </div>
         <div v-if="chosenTask.title">
@@ -337,5 +338,9 @@ export default {
 
 .taskStatus {
   margin: 0 0 15px 0;
+}
+
+.titleBurned {
+  color: red;
 }
 </style>
