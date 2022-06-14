@@ -149,7 +149,7 @@
           />
         </div>
         <Button
-            v-else-if="chosenTask.options"
+            v-else-if="chosenTask.options && chosenTask.options.length"
             class="Button"
             @click="setTaskStatus(chosenTask.id, chosenTask.options[0])"
             v-bind="chosenTask.options[0]"
